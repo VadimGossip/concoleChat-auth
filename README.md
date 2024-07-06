@@ -1,2 +1,2 @@
 # concoleChat-auth
-Auth service of console chat project in console chat project
+Auth service of console chat project
