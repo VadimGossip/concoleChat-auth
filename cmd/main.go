@@ -1,11 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"time"
 
-	"github.com/fatih/color"
+	"github.com/VadimGossip/concoleChat-auth/internal/app"
 )
 
+var configDir = "config"
+
 func main() {
-	fmt.Println(color.GreenString("Hello, world!"))
+	auth := app.NewApp("Console Chat Auth", configDir, time.Now())
+	auth.Run()
 }
