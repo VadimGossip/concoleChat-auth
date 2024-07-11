@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"sync"
 	"time"
 
@@ -12,6 +11,7 @@ import (
 	def "github.com/VadimGossip/concoleChat-auth/internal/repository"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository/user/converter"
 	repoModel "github.com/VadimGossip/concoleChat-auth/internal/repository/user/model"
+	"github.com/sirupsen/logrus"
 )
 
 var _ def.UserRepository = (*repository)(nil)
