@@ -2,11 +2,11 @@ package user
 
 import (
 	"context"
-	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/VadimGossip/concoleChat-auth/internal/converter"
 	"github.com/VadimGossip/concoleChat-auth/internal/service"
 	desc "github.com/VadimGossip/concoleChat-auth/pkg/user_v1"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Implementation struct {
