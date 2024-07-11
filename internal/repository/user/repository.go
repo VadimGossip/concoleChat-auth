@@ -19,7 +19,7 @@ var _ def.UserRepository = (*repository)(nil)
 type repository struct {
 	m      sync.RWMutex
 	data   map[int64]*repoModel.User
-	lastId int64
+	lastID int64
 }
 
 func NewRepository() *repository {
@@ -32,14 +32,14 @@ func (r *repository) Create(_ context.Context, info *model.UserInfo) (int64, err
 	r.m.Lock()
 	defer r.m.Unlock()
 
-	r.lastId++
-	r.data[r.lastId] = &repoModel.User{
-		Id:        r.lastId,
+	r.lastID++
+	r.data[r.lastID] = &repoModel.User{
+		ID:        r.lastID,
 		Info:      converter.ToRepoFromUserInfo(info),
 		CreatedAt: time.Now(),
 	}
 	logrus.Infof("User created %+v", info)
-	return r.lastId, nil
+	return r.lastID, nil
 }
 
 func (r *repository) Get(_ context.Context, id int64) (*model.User, error) {

@@ -14,7 +14,7 @@ func ToUserFromService(user *model.User) *desc.User {
 	}
 
 	return &desc.User{
-		Id:        user.Id,
+		Id:        user.ID,
 		Info:      ToUserInfoFromService(user.Info),
 		CreatedAt: timestamppb.New(user.CreatedAt),
 		UpdatedAt: updatedAt,

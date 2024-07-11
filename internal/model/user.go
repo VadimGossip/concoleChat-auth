@@ -18,7 +18,7 @@ type UserInfo struct {
 }
 
 type User struct {
-	Id        int64
+	ID        int64
 	Info      UserInfo
 	CreatedAt time.Time
 	UpdatedAt *time.Time
