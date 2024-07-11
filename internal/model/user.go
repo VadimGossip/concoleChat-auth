@@ -2,6 +2,7 @@ package model
 
 import "time"
 
+// Role enum
 const (
 	UnknownRole string = "unknown"
 	UserRole    string = "user"
