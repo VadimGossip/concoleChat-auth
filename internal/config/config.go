@@ -27,9 +27,9 @@ func Init(configDir string) (*model.Config, error) {
 		return nil, err
 	}
 
-	var cfg model.Config
-	if err := unmarshal(&cfg); err != nil {
-		return nil, err
-	}
-	return &cfg, nil
+	var cfg *model.Config
+	//if err := unmarshal(&cfg); err != nil {
+	//	return nil, err
+	//}
+	return cfg, nil
 }
