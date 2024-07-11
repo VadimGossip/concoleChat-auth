@@ -47,7 +47,7 @@ issues:
   exclude:
     # _ instead of err checks
     - G104
-    - EXC0002
+    - should have comment or be unexported
     - exported func .* returns unexported type .*, which can be annoying to use
     - should have a package comment
     - don't use an underscore in package name
