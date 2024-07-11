@@ -1,7 +1,6 @@
 package app
 
 import (
-	"github.com/sirupsen/logrus"
 	"os"
 	"os/signal"
 	"syscall"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/VadimGossip/concoleChat-auth/internal/config"
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
+	"github.com/sirupsen/logrus"
 )
 
 func init() {
