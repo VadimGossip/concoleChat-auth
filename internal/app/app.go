@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	"github.com/sirupsen/logrus"
 	"os"
 	"os/signal"
@@ -37,10 +36,7 @@ func NewApp(name, configDir string, appStartedAt time.Time) *App {
 
 func (app *App) Run() {
 	cfg, err := config.Init(app.configDir)
-	if err != nil || cfg == (*model.Config)(nil) {
-		if cfg == (*model.Config)(nil) {
-			err = fmt.Errorf("empty config")
-		}
+	if err != nil {
 		logrus.Fatalf("Config initialization error: %s", err)
 	}
 	app.cfg = cfg

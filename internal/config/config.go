@@ -26,10 +26,6 @@ func Init(configDir string) (*model.Config, error) {
 	if err := parseConfigFile(configDir); err != nil {
 		return nil, err
 	}
-
-	var cfg *model.Config
-	//if err := unmarshal(&cfg); err != nil {
-	//	return nil, err
-	//}
-	return cfg, nil
+	cfg := &model.Config{}
+	return cfg, unmarshal(cfg)
 }
