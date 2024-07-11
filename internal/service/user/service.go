@@ -40,5 +40,5 @@ func (s *service) Update(ctx context.Context, id int64, updateInfo *model.Update
 }
 
 func (s *service) Delete(ctx context.Context, id int64) error {
-	return s.Delete(ctx, id)
+	return s.userRepository.Delete(ctx, id)
 }
