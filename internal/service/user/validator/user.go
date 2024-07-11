@@ -34,18 +34,12 @@ func CreateValidation(info *model.UserInfo) error {
 	if err := emptyEmail(info.Email); err != nil {
 		return err
 	}
-	if err := passwordMatch(info.Password, info.PasswordConfirm); err != nil {
-		return err
-	}
-	return nil
+	return passwordMatch(info.Password, info.PasswordConfirm)
 }
 
 func UpdateValidation(updateInfo *model.UpdateUserInfo) error {
 	if err := emptyName(updateInfo.Name); err != nil {
 		return err
 	}
-	if err := emptyEmail(updateInfo.Email); err != nil {
-		return err
-	}
-	return nil
+	return emptyEmail(updateInfo.Email)
 }
