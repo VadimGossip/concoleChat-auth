@@ -2,10 +2,11 @@ package app
 
 import (
 	"fmt"
+	"net"
+
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"net"
 )
 
 type GrpcServer struct {
