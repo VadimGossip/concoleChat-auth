@@ -13,33 +13,16 @@ func passwordMatch(password, passwordConfirm string) error {
 	return nil
 }
 
-func emptyName(name string) error {
-	if name == "" {
-		return fmt.Errorf("empty name not allowed")
-	}
-	return nil
-}
-
-func emptyEmail(email string) error {
-	if email == "" {
-		return fmt.Errorf("empty email not allowed")
-	}
-	return nil
-}
-
 func CreateValidation(info *model.UserInfo) error {
-	if err := emptyName(info.Name); err != nil {
-		return err
-	}
-	if err := emptyEmail(info.Email); err != nil {
-		return err
-	}
 	return passwordMatch(info.Password, info.PasswordConfirm)
 }
 
-func UpdateValidation(updateInfo *model.UpdateUserInfo) error {
-	if err := emptyName(updateInfo.Name); err != nil {
-		return err
+func emptyUpdate(updateInfo *model.UpdateUserInfo) error {
+	if updateInfo.Name == nil && updateInfo.Email == nil && updateInfo.Role == model.UnknownRole {
+		return fmt.Errorf("update with no updated fields not allowed")
 	}
-	return emptyEmail(updateInfo.Email)
+	return nil
+}
+func UpdateValidation(updateInfo *model.UpdateUserInfo) error {
+	return emptyUpdate(updateInfo)
 }

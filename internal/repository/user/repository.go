@@ -59,8 +59,12 @@ func (r *repository) Update(_ context.Context, id int64, updateInfo *model.Updat
 			Time:  time.Now(),
 			Valid: true,
 		}
-		user.Info.Name = updateInfo.Name
-		user.Info.Email = updateInfo.Email
+		if updateInfo.Name != nil {
+			user.Info.Name = *updateInfo.Name
+		}
+		if updateInfo.Email != nil {
+			user.Info.Email = *updateInfo.Email
+		}
 
 		if updateInfo.Role != model.UnknownRole {
 			user.Info.Role = updateInfo.Role

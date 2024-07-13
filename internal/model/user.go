@@ -25,7 +25,7 @@ type User struct {
 }
 
 type UpdateUserInfo struct {
-	Name  string
-	Email string
+	Name  *string
+	Email *string
 	Role  string
 }

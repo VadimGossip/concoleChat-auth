@@ -43,11 +43,18 @@ func ToUserInfoFromDesc(info *desc.UserInfo) *model.UserInfo {
 
 func ToUpdateUserInfoFromDesc(info *desc.UpdateUserInfo) *model.UpdateUserInfo {
 	m := &model.UpdateUserInfo{
-		Name:  info.GetName().Value,
-		Email: info.GetEmail().Value,
-		Role:  model.UnknownRole,
+		Role: model.UnknownRole,
 	}
-	if info.Role.Enum() != nil {
+
+	if info.Name != nil {
+		m.Name = &info.GetName().Value
+	}
+
+	if info.Email != nil {
+		m.Email = &info.GetEmail().Value
+	}
+
+	if info.Role != nil {
 		m.Role = desc.Role_name[int32(*info.Role.Enum())]
 	}
 	return m
