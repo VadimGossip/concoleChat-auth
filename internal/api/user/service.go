@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+
 	"github.com/VadimGossip/concoleChat-auth/internal/converter"
 	"github.com/VadimGossip/concoleChat-auth/internal/service"
 	desc "github.com/VadimGossip/concoleChat-auth/pkg/user_v1"
