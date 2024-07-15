@@ -2,6 +2,7 @@ package model
 
 import "time"
 
+// Role
 const (
 	UnknownRole string = "UNKNOWN"
 	UserRole    string = "USER"
