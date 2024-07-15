@@ -2,11 +2,10 @@ package model
 
 import "time"
 
-// Role enum
 const (
-	UnknownRole string = "unknown"
-	UserRole    string = "user"
-	AdminRole   string = "admin"
+	UnknownRole string = "UNKNOWN"
+	UserRole    string = "USER"
+	AdminRole   string = "ADMIN"
 )
 
 type UserInfo struct {

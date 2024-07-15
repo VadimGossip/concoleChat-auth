@@ -23,6 +23,7 @@ func emptyUpdate(updateInfo *model.UpdateUserInfo) error {
 	}
 	return nil
 }
+
 func UpdateValidation(updateInfo *model.UpdateUserInfo) error {
 	return emptyUpdate(updateInfo)
 }
