@@ -48,7 +48,7 @@ issues:
     # _ instead of err checks
     - G104
     - should have comment or be unexported
-    - should have comment (or a comment on this block) or be unexported
+    - should have a const comment
     - exported func .* returns unexported type .*, which can be annoying to use
     - should have a package comment
     - don't use an underscore in package name
