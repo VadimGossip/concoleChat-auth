@@ -14,4 +14,4 @@ COPY . ./
 # for our image and build the sender.
 RUN go build -o auth cmd/main.go
 
-ENTRYPOINT ["./chat-server"]
+ENTRYPOINT ["./auth"]
