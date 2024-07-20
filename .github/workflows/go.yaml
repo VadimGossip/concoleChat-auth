@@ -7,9 +7,9 @@ on:
     branches: [ dev, main ]
 
 env:
-  REGISTRY: "pgregistry.cr.cloud.ru/chat-server"
+  REGISTRY: "pgregistry.cr.cloud.ru/auth"
   IMAGE_NAME: "auth"
-  CONTAINER_NAME: "auth"
+  CONTAINER_NAME: "auth-container"
 
 jobs:
   linter:
