@@ -8,8 +8,8 @@ on:
 
 env:
   REGISTRY: "pgregistry.cr.cloud.ru/chat-server"
-  IMAGE_NAME: "chat-server"
-  CONTAINER_NAME: "chat-server-container"
+  IMAGE_NAME: "auth"
+  CONTAINER_NAME: "auth"
 
 jobs:
   linter:
