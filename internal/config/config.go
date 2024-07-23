@@ -31,13 +31,5 @@ func Init(configDir string) (*model.Config, error) {
 	if err := setFromEnv(cfg); err != nil {
 		return nil, err
 	}
-	cfg.Db = model.DbCfg{
-		Host:     "localhost",
-		Port:     5432,
-		Username: "postgres",
-		Name:     "auth-db",
-		SSLMode:  "disable",
-		Password: "postgres",
-	}
 	return cfg, nil
 }

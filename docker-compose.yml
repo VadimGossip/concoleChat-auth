@@ -17,27 +17,27 @@ services:
       - auth-network
     volumes:
       - postgres_volume:/var/lib/postgresql/data
-#  chat-server:
-#    image: chat-server
-#    container_name: chat-server
-#    environment:
-#     - APP_PORT=8085
-#     - DB_HOST=pg-chat-server
-#     - DB_PORT=5432
-#     - DB_USERNAME=postgres
-#     - DB_NAME=chat-server-db
-#     - DB_SSLMODE=disable
-#     - DB_PASSWORD=postgres
-#    ports:
-#      - 8085:8085
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    restart: always
-#    networks:
-#     - chat-server-network
-#    depends_on:
-#      - pg-chat-server
+  auth:
+    image: auth
+    container_name: auth
+    environment:
+     - APP_PORT=8086
+     - DB_HOST=pg-auth
+     - DB_PORT=5432
+     - DB_USERNAME=postgres
+     - DB_NAME=auth-db
+     - DB_SSLMODE=disable
+     - DB_PASSWORD=postgres
+    ports:
+      - 8086:8086
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    networks:
+     - auth-network
+    depends_on:
+      - pg-auth
   migrator:
     build:
       context: .

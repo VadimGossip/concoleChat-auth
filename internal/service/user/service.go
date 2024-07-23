@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository"
 	def "github.com/VadimGossip/concoleChat-auth/internal/service"

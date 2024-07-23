@@ -3,11 +3,11 @@ package app
 import (
 	"context"
 	"fmt"
-	"github.com/VadimGossip/concoleChat-auth/internal/repository/user"
 	"log"
 
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository"
+	"github.com/VadimGossip/concoleChat-auth/internal/repository/user"
 	"github.com/jackc/pgx/v4"
 	"github.com/sirupsen/logrus"
 )
