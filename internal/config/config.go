@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
+	"github.com/kelseyhightower/envconfig"
 	"github.com/spf13/viper"
 )
 
@@ -9,6 +10,10 @@ func parseConfigFile(configDir string) error {
 	viper.AddConfigPath(configDir)
 	viper.SetConfigName("config")
 	return viper.ReadInConfig()
+}
+
+func setFromEnv(cfg *model.Config) error {
+	return envconfig.Process("db", &cfg.Db)
 }
 
 func unmarshal(cfg *model.Config) error {
@@ -20,5 +25,19 @@ func Init(configDir string) (*model.Config, error) {
 		return nil, err
 	}
 	cfg := &model.Config{}
-	return cfg, unmarshal(cfg)
+	if err := unmarshal(cfg); err != nil {
+		return nil, err
+	}
+	if err := setFromEnv(cfg); err != nil {
+		return nil, err
+	}
+	cfg.Db = model.DbCfg{
+		Host:     "localhost",
+		Port:     5432,
+		Username: "postgres",
+		Name:     "auth-db",
+		SSLMode:  "disable",
+		Password: "postgres",
+	}
+	return cfg, nil
 }

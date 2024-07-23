@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository"
 	def "github.com/VadimGossip/concoleChat-auth/internal/service"
@@ -25,20 +24,51 @@ func (s *service) Create(ctx context.Context, info *model.UserInfo) (int64, erro
 	if err := validator.CreateValidation(info); err != nil {
 		return 0, err
 	}
-	return s.userRepository.Create(ctx, info)
+
+	tx, err := s.userRepository.BeginTxSerializable(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := s.userRepository.Create(ctx, tx, info)
+	if err != nil {
+		return 0, s.userRepository.StopTx(ctx, tx, err)
+	}
+
+	return id, s.userRepository.StopTx(ctx, tx, nil)
 }
 
-func (s *service) Get(ctx context.Context, id int64) (*model.User, error) {
-	return s.userRepository.Get(ctx, id)
+func (s *service) Get(ctx context.Context, ID int64) (*model.User, error) {
+	tx, err := s.userRepository.BeginTxSerializable(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := s.userRepository.Get(ctx, tx, ID)
+	if err != nil {
+		return nil, s.userRepository.StopTx(ctx, tx, err)
+	}
+
+	return user, s.userRepository.StopTx(ctx, tx, nil)
 }
 
-func (s *service) Update(ctx context.Context, id int64, updateInfo *model.UpdateUserInfo) error {
+func (s *service) Update(ctx context.Context, ID int64, updateInfo *model.UpdateUserInfo) error {
 	if err := validator.UpdateValidation(updateInfo); err != nil {
 		return err
 	}
-	return s.userRepository.Update(ctx, id, updateInfo)
+
+	tx, err := s.userRepository.BeginTxSerializable(ctx)
+	if err != nil {
+		return err
+	}
+	return s.userRepository.StopTx(ctx, tx, s.userRepository.Update(ctx, tx, ID, updateInfo))
 }
 
-func (s *service) Delete(ctx context.Context, id int64) error {
-	return s.userRepository.Delete(ctx, id)
+func (s *service) Delete(ctx context.Context, ID int64) error {
+	tx, err := s.userRepository.BeginTxSerializable(ctx)
+	if err != nil {
+		return err
+	}
+
+	return s.userRepository.StopTx(ctx, tx, s.userRepository.Delete(ctx, tx, ID))
 }

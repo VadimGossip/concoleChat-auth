@@ -1,0 +1,59 @@
+version: "3.9"
+
+volumes:
+  postgres_volume:
+
+services:
+  pg-auth:
+    image: postgres:14-alpine3.17
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=auth-db
+    ports:
+      - "5432:5432"
+    restart: always
+    networks:
+      - auth-network
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data
+#  chat-server:
+#    image: chat-server
+#    container_name: chat-server
+#    environment:
+#     - APP_PORT=8085
+#     - DB_HOST=pg-chat-server
+#     - DB_PORT=5432
+#     - DB_USERNAME=postgres
+#     - DB_NAME=chat-server-db
+#     - DB_SSLMODE=disable
+#     - DB_PASSWORD=postgres
+#    ports:
+#      - 8085:8085
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    restart: always
+#    networks:
+#     - chat-server-network
+#    depends_on:
+#      - pg-chat-server
+  migrator:
+    build:
+      context: .
+      dockerfile: migration.Dockerfile
+    restart: on-failure
+    environment:
+      - DB_HOST=pg-auth
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_NAME=auth-db
+      - DB_SSLMODE=disable
+      - DB_PASSWORD=postgres
+      - MIGRATION_DIR=./migrations
+    networks:
+      - auth-network
+
+networks:
+  auth-network:
+    driver: bridge

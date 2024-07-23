@@ -6,11 +6,10 @@ import (
 )
 
 type UserInfo struct {
-	Name            string
-	Email           string
-	Password        string
-	PasswordConfirm string
-	Role            string
+	Name     string
+	Email    string
+	Password string
+	Role     string
 }
 
 type User struct {
