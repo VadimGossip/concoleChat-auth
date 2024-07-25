@@ -17,7 +17,7 @@ import (
 
 const (
 	users     string = "users"
-	id        string = "id"
+	columnID  string = "id"
 	username  string = "username"
 	password  string = "password"
 	email     string = "email"
@@ -59,7 +59,7 @@ func (r *repository) Create(ctx context.Context, tx pgx.Tx, info *model.UserInfo
 		PlaceholderFormat(sq.Dollar).
 		Columns(username, password, email, role, createdAt).
 		Values(repoInfo.Name, repoInfo.Password, repoInfo.Email, repoInfo.Role, time.Now()).
-		Suffix("RETURNING " + id)
+		Suffix("RETURNING " + columnID)
 
 	query, args, err := userInsert.ToSql()
 	if err != nil {
@@ -77,7 +77,7 @@ func (r *repository) Get(ctx context.Context, tx pgx.Tx, ID int64) (*model.User,
 	userSelect := sq.Select(username, email, role, createdAt, updatedAt).
 		From(users).
 		PlaceholderFormat(sq.Dollar).
-		Where(sq.Eq{id: ID})
+		Where(sq.Eq{columnID: ID})
 
 	query, args, err := userSelect.ToSql()
 	if err != nil {
@@ -98,7 +98,7 @@ func (r *repository) Update(ctx context.Context, tx pgx.Tx, ID int64, updateInfo
 	userUpdate := sq.Update(users).
 		PlaceholderFormat(sq.Dollar).
 		Set("updated_at", time.Now()).
-		Where(sq.Eq{id: ID})
+		Where(sq.Eq{columnID: ID})
 
 	if updateInfo.Name != nil {
 		userUpdate = userUpdate.Set(username, *updateInfo.Name)
@@ -126,7 +126,7 @@ func (r *repository) Update(ctx context.Context, tx pgx.Tx, ID int64, updateInfo
 func (r *repository) Delete(ctx context.Context, tx pgx.Tx, ID int64) error {
 	chatDelete := sq.Delete(users).
 		PlaceholderFormat(sq.Dollar).
-		Where(sq.Eq{id: ID})
+		Where(sq.Eq{columnID: ID})
 
 	query, args, err := chatDelete.ToSql()
 	if err != nil {
