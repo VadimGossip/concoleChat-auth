@@ -1,6 +1,8 @@
 package app
 
 import (
+	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -34,21 +36,25 @@ func NewApp(name, configDir string, appStartedAt time.Time) *App {
 	}
 }
 
-func (app *App) Run() {
+func (app *App) Run() error {
+	ctx := context.Background()
 	cfg, err := config.Init(app.configDir)
 	if err != nil {
-		logrus.Fatalf("Config initialization error: %s", err)
+		return fmt.Errorf("[%s] config initialization error: %s", app.name, err)
 	}
 	app.cfg = cfg
 	logrus.Infof("[%s] got config: [%+v]", app.name, *app.cfg)
 
-	dbAdapter := NewDBAdapter()
+	dbAdapter := NewDBAdapter(cfg.Db)
+	if err = dbAdapter.Connect(ctx); err != nil {
+		return fmt.Errorf("[%s] fail to connect db: %s", app.name, err)
+	}
 	app.Factory = newFactory(dbAdapter)
 
 	go func() {
 		app.grpcServer = NewGrpcServer(cfg.AppGrpcServer.Port)
 		grpcRouter := initGrpcRouter(app)
-		if err := app.grpcServer.Listen(grpcRouter); err != nil {
+		if err = app.grpcServer.Listen(grpcRouter); err != nil {
 			logrus.Fatalf("Failed to start GRPC server %s", err)
 		}
 	}()
@@ -59,5 +65,10 @@ func (app *App) Run() {
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGINT)
 	logrus.Infof("[%s] got signal: [%s]", app.name, <-c)
 
+	if err = dbAdapter.Disconnect(ctx); err != nil {
+		return fmt.Errorf("[%s] fail to diconnect db: %s", app.name, err)
+	}
+
 	logrus.Infof("[%s] stopped", app.name)
+	return nil
 }

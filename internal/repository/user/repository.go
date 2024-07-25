@@ -2,86 +2,140 @@ package user
 
 import (
 	"context"
-	"database/sql"
+	"errors"
 	"fmt"
-	"sync"
 	"time"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	def "github.com/VadimGossip/concoleChat-auth/internal/repository"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository/user/converter"
 	repoModel "github.com/VadimGossip/concoleChat-auth/internal/repository/user/model"
+	"github.com/jackc/pgx/v4"
 	"github.com/sirupsen/logrus"
+)
+
+const (
+	users     string = "users"
+	columnID  string = "id"
+	username  string = "username"
+	password  string = "password"
+	email     string = "email"
+	role      string = "role"
+	createdAt string = "created_at"
+	updatedAt string = "updated_at"
 )
 
 var _ def.UserRepository = (*repository)(nil)
 
 type repository struct {
-	m      sync.RWMutex
-	data   map[int64]*repoModel.User
-	lastID int64
+	db *pgx.Conn
 }
 
-func NewRepository() *repository {
+func NewRepository(db *pgx.Conn) *repository {
 	return &repository{
-		data: make(map[int64]*repoModel.User),
+		db: db,
 	}
 }
 
-func (r *repository) Create(_ context.Context, info *model.UserInfo) (int64, error) {
-	r.m.Lock()
-	defer r.m.Unlock()
-
-	r.lastID++
-	r.data[r.lastID] = &repoModel.User{
-		ID:        r.lastID,
-		Info:      converter.ToRepoFromUserInfo(info),
-		CreatedAt: time.Now(),
-	}
-	logrus.Infof("User created %+v", info)
-	return r.lastID, nil
+func (r *repository) BeginTxSerializable(ctx context.Context) (pgx.Tx, error) {
+	return r.db.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.Serializable})
 }
 
-func (r *repository) Get(_ context.Context, id int64) (*model.User, error) {
-	r.m.RLock()
-	defer r.m.RUnlock()
-	if user, ok := r.data[id]; ok {
-		return converter.ToUserFromRepo(user), nil
+func (r *repository) StopTx(ctx context.Context, tx pgx.Tx, err error) error {
+	if err != nil {
+		if rbErr := tx.Rollback(ctx); rbErr != nil {
+			logrus.Errorf("error while rollback transaction: %s", rbErr)
+		}
+		return err
 	}
-	return nil, fmt.Errorf("user id=%d not found", id)
+	return tx.Commit(ctx)
 }
 
-func (r *repository) Update(_ context.Context, id int64, updateInfo *model.UpdateUserInfo) error {
-	r.m.Lock()
-	defer r.m.Unlock()
-	if user, ok := r.data[id]; ok {
-		user.UpdatedAt = sql.NullTime{
-			Time:  time.Now(),
-			Valid: true,
-		}
-		if updateInfo.Name != nil {
-			user.Info.Name = *updateInfo.Name
-		}
-		if updateInfo.Email != nil {
-			user.Info.Email = *updateInfo.Email
-		}
+// Create need to hash password
+func (r *repository) Create(ctx context.Context, tx pgx.Tx, info *model.UserInfo) (int64, error) {
+	repoInfo := converter.ToRepoFromUserInfo(info)
+	userInsert := sq.Insert(users).
+		PlaceholderFormat(sq.Dollar).
+		Columns(username, password, email, role, createdAt).
+		Values(repoInfo.Name, repoInfo.Password, repoInfo.Email, repoInfo.Role, time.Now()).
+		Suffix("RETURNING " + columnID)
 
-		if updateInfo.Role != model.UnknownRole {
-			user.Info.Role = updateInfo.Role
-		}
-		logrus.Infof("User updated %+v", r.data[id])
-		return nil
+	query, args, err := userInsert.ToSql()
+	if err != nil {
+		return 0, err
 	}
-	return fmt.Errorf("user id=%d not found", id)
+	var id int64
+	if err = tx.QueryRow(ctx, query, args...).Scan(&id); err != nil {
+		return 0, err
+	}
+
+	return id, nil
 }
 
-func (r *repository) Delete(_ context.Context, id int64) error {
-	r.m.Lock()
-	defer r.m.Unlock()
-	if _, ok := r.data[id]; ok {
-		delete(r.data, id)
-		logrus.Infof("User id=%d deleted", id)
-		return nil
+func (r *repository) Get(ctx context.Context, tx pgx.Tx, ID int64) (*model.User, error) {
+	userSelect := sq.Select(username, email, role, createdAt, updatedAt).
+		From(users).
+		PlaceholderFormat(sq.Dollar).
+		Where(sq.Eq{columnID: ID})
+
+	query, args, err := userSelect.ToSql()
+	if err != nil {
+		return nil, err
 	}
-	return fmt.Errorf("user id=%d not found", id)
+
+	repoUser := &repoModel.User{ID: ID}
+	if err = tx.QueryRow(ctx, query, args...).Scan(&repoUser.Info.Name, &repoUser.Info.Email, &repoUser.Info.Role, &repoUser.CreatedAt, &repoUser.UpdatedAt); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, fmt.Errorf("user not found")
+		}
+		return nil, err
+	}
+	return converter.ToUserFromRepo(repoUser), nil
+}
+
+func (r *repository) Update(ctx context.Context, tx pgx.Tx, ID int64, updateInfo *model.UpdateUserInfo) error {
+	userUpdate := sq.Update(users).
+		PlaceholderFormat(sq.Dollar).
+		Set("updated_at", time.Now()).
+		Where(sq.Eq{columnID: ID})
+
+	if updateInfo.Name != nil {
+		userUpdate = userUpdate.Set(username, *updateInfo.Name)
+	}
+
+	if updateInfo.Email != nil {
+		userUpdate = userUpdate.Set(email, *updateInfo.Email)
+	}
+	if updateInfo.Role != model.UnknownRole {
+		userUpdate = userUpdate.Set(role, updateInfo.Role)
+	}
+
+	query, args, err := userUpdate.ToSql()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *repository) Delete(ctx context.Context, tx pgx.Tx, ID int64) error {
+	chatDelete := sq.Delete(users).
+		PlaceholderFormat(sq.Dollar).
+		Where(sq.Eq{columnID: ID})
+
+	query, args, err := chatDelete.ToSql()
+	if err != nil {
+		return err
+	}
+
+	if _, err = tx.Exec(ctx, query, args...); err != nil {
+		return err
+	}
+
+	return nil
 }

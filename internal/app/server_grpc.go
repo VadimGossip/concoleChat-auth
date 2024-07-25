@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/reflection"
 )
 
 type GrpcServer struct {
@@ -23,6 +24,7 @@ func NewGrpcServer(port int) *GrpcServer {
 
 func (s *GrpcServer) Listen(grpcRouter func(*grpc.Server)) error {
 	s.server = grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
+	reflection.Register(s.server)
 	grpcRouter(s.server)
 
 	var err error

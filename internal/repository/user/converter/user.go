@@ -23,20 +23,17 @@ func ToUserFromRepo(user *repoModel.User) *model.User {
 
 func ToUserInfoFromRepo(info repoModel.UserInfo) model.UserInfo {
 	return model.UserInfo{
-		Name:            info.Name,
-		Email:           info.Email,
-		Password:        info.Password,
-		PasswordConfirm: info.PasswordConfirm,
-		Role:            info.Role,
+		Name:  info.Name,
+		Email: info.Email,
+		Role:  info.Role,
 	}
 }
 
 func ToRepoFromUserInfo(info *model.UserInfo) repoModel.UserInfo {
 	return repoModel.UserInfo{
-		Name:            info.Name,
-		Email:           info.Email,
-		Password:        info.Password,
-		PasswordConfirm: info.PasswordConfirm,
-		Role:            info.Role,
+		Name:     info.Name,
+		Email:    info.Email,
+		Password: info.Password,
+		Role:     info.Role,
 	}
 }
