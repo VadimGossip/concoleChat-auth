@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/sirupsen/logrus"
 	"time"
 
 	"github.com/VadimGossip/concoleChat-auth/internal/app"
+	"github.com/sirupsen/logrus"
 )
 
 var configDir = "config"
