@@ -42,5 +42,6 @@ func (d *DBAdapter) Disconnect(ctx context.Context) error {
 	if err := d.db.Close(ctx); err != nil {
 		logrus.Errorf("Error occured on db connection close: %s", err.Error())
 	}
+
 	return nil
 }

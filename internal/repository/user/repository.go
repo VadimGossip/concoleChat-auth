@@ -15,6 +15,17 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const (
+	users     string = "users"
+	id        string = "id"
+	username  string = "username"
+	password  string = "password"
+	email     string = "email"
+	role      string = "role"
+	createdAt string = "created_at"
+	updatedAt string = "updated_at"
+)
+
 var _ def.UserRepository = (*repository)(nil)
 
 type repository struct {
@@ -44,11 +55,11 @@ func (r *repository) StopTx(ctx context.Context, tx pgx.Tx, err error) error {
 // Create need to hash password
 func (r *repository) Create(ctx context.Context, tx pgx.Tx, info *model.UserInfo) (int64, error) {
 	repoInfo := converter.ToRepoFromUserInfo(info)
-	userInsert := sq.Insert("users").
+	userInsert := sq.Insert(users).
 		PlaceholderFormat(sq.Dollar).
-		Columns("username", "password", "email", "role", "created_at").
+		Columns(username, password, email, role, createdAt).
 		Values(repoInfo.Name, repoInfo.Password, repoInfo.Email, repoInfo.Role, time.Now()).
-		Suffix("RETURNING id")
+		Suffix("RETURNING " + id)
 
 	query, args, err := userInsert.ToSql()
 	if err != nil {
@@ -63,10 +74,10 @@ func (r *repository) Create(ctx context.Context, tx pgx.Tx, info *model.UserInfo
 }
 
 func (r *repository) Get(ctx context.Context, tx pgx.Tx, ID int64) (*model.User, error) {
-	userSelect := sq.Select("username", "email", "role", "created_at", "updated_at").
-		From("users").
+	userSelect := sq.Select(username, email, role, createdAt, updatedAt).
+		From(users).
 		PlaceholderFormat(sq.Dollar).
-		Where(sq.Eq{"id": ID})
+		Where(sq.Eq{id: ID})
 
 	query, args, err := userSelect.ToSql()
 	if err != nil {
@@ -84,20 +95,20 @@ func (r *repository) Get(ctx context.Context, tx pgx.Tx, ID int64) (*model.User,
 }
 
 func (r *repository) Update(ctx context.Context, tx pgx.Tx, ID int64, updateInfo *model.UpdateUserInfo) error {
-	userUpdate := sq.Update("users").
+	userUpdate := sq.Update(users).
 		PlaceholderFormat(sq.Dollar).
 		Set("updated_at", time.Now()).
-		Where(sq.Eq{"id": ID})
+		Where(sq.Eq{id: ID})
 
 	if updateInfo.Name != nil {
-		userUpdate = userUpdate.Set("username", *updateInfo.Name)
+		userUpdate = userUpdate.Set(username, *updateInfo.Name)
 	}
 
 	if updateInfo.Email != nil {
-		userUpdate = userUpdate.Set("email", *updateInfo.Email)
+		userUpdate = userUpdate.Set(email, *updateInfo.Email)
 	}
 	if updateInfo.Role != model.UnknownRole {
-		userUpdate = userUpdate.Set("role", updateInfo.Role)
+		userUpdate = userUpdate.Set(role, updateInfo.Role)
 	}
 
 	query, args, err := userUpdate.ToSql()
@@ -113,9 +124,9 @@ func (r *repository) Update(ctx context.Context, tx pgx.Tx, ID int64, updateInfo
 }
 
 func (r *repository) Delete(ctx context.Context, tx pgx.Tx, ID int64) error {
-	chatDelete := sq.Delete("users").
+	chatDelete := sq.Delete(users).
 		PlaceholderFormat(sq.Dollar).
-		Where(sq.Eq{"id": ID})
+		Where(sq.Eq{id: ID})
 
 	query, args, err := chatDelete.ToSql()
 	if err != nil {

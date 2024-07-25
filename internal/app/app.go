@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -35,18 +36,18 @@ func NewApp(name, configDir string, appStartedAt time.Time) *App {
 	}
 }
 
-func (app *App) Run() {
+func (app *App) Run() error {
 	ctx := context.Background()
 	cfg, err := config.Init(app.configDir)
 	if err != nil {
-		logrus.Fatalf("Config initialization error: %s", err)
+		return fmt.Errorf("[%s] config initialization error: %s", app.name, err)
 	}
 	app.cfg = cfg
 	logrus.Infof("[%s] got config: [%+v]", app.name, *app.cfg)
 
 	dbAdapter := NewDBAdapter(cfg.Db)
 	if err = dbAdapter.Connect(ctx); err != nil {
-		logrus.Fatalf("Fail to connect db %s", err)
+		return fmt.Errorf("[%s] fail to connect db: %s", app.name, err)
 	}
 	app.Factory = newFactory(dbAdapter)
 
@@ -65,8 +66,9 @@ func (app *App) Run() {
 	logrus.Infof("[%s] got signal: [%s]", app.name, <-c)
 
 	if err = dbAdapter.Disconnect(ctx); err != nil {
-		logrus.Errorf("Fail to diconnect db %s", err)
+		return fmt.Errorf("[%s] fail to diconnect db: %s", app.name, err)
 	}
 
 	logrus.Infof("[%s] stopped", app.name)
+	return nil
 }
