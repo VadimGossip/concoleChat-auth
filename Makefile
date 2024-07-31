@@ -31,7 +31,7 @@ generate-chat-api:
 	api/chat_v1/chat.proto
 
 build:
-	GOOS=linux GOARCH=amd64 go build -o chat-server cmd/main.go
+	GOOS=linux GOARCH=amd64 go build -o auth cmd/main.go
 
 local-migration-status:
 	$(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} postgres ${LOCAL_MIGRATION_DSN} status -v
