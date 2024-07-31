@@ -79,7 +79,7 @@ func (r *repository) Get(ctx context.Context, ID int64) (*model.User, error) {
 		Name:     "user_repository.Get",
 		QueryRaw: query,
 	}
-	if err = r.db.DB().ScanOneContext(ctx, &repoUser, q, args...); err != nil {
+	if err = r.db.DB().ScanOneContext(ctx, repoUser, q, args...); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, fmt.Errorf("user not found")
 		}

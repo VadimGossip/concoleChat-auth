@@ -6,15 +6,15 @@ import (
 )
 
 type UserInfo struct {
-	Name     string
-	Email    string
+	Name     string `db:"username"`
+	Email    string `db:"email"`
 	Password string
-	Role     string
+	Role     string `db:"role"`
 }
 
 type User struct {
 	ID        int64
-	Info      UserInfo
-	CreatedAt time.Time
-	UpdatedAt sql.NullTime
+	Info      UserInfo     `db:""`
+	CreatedAt time.Time    `db:"created_at"`
+	UpdatedAt sql.NullTime `db:"updated_at"`
 }
