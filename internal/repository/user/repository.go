@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/VadimGossip/concoleChat-auth/internal/client/db"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
+
+	"github.com/VadimGossip/concoleChat-auth/internal/client/db"
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	def "github.com/VadimGossip/concoleChat-auth/internal/repository"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository/user/converter"
@@ -24,6 +25,7 @@ const (
 	roleColumn      string = "role"
 	createdAtColumn string = "created_at"
 	updatedAtColumn string = "updated_at"
+	repoName        string = "user_repository"
 )
 
 var _ def.UserRepository = (*repository)(nil)
@@ -53,7 +55,7 @@ func (r *repository) Create(ctx context.Context, info *model.UserInfo) (int64, e
 	}
 	var id int64
 	q := db.Query{
-		Name:     "user_repository.Create",
+		Name:     repoName + ".Create",
 		QueryRaw: query,
 	}
 	if err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(&id); err != nil {
@@ -76,7 +78,7 @@ func (r *repository) Get(ctx context.Context, ID int64) (*model.User, error) {
 
 	repoUser := &repoModel.User{ID: ID}
 	q := db.Query{
-		Name:     "user_repository.Get",
+		Name:     repoName + ".Get",
 		QueryRaw: query,
 	}
 	if err = r.db.DB().ScanOneContext(ctx, repoUser, q, args...); err != nil {
@@ -111,7 +113,7 @@ func (r *repository) Update(ctx context.Context, ID int64, updateInfo *model.Upd
 	}
 
 	q := db.Query{
-		Name:     "user_repository.Update",
+		Name:     repoName + ".Update",
 		QueryRaw: query,
 	}
 	_, err = r.db.DB().ExecContext(ctx, q, args...)
@@ -132,7 +134,7 @@ func (r *repository) Delete(ctx context.Context, ID int64) error {
 	}
 
 	q := db.Query{
-		Name:     "user_repository.Delete",
+		Name:     repoName + ".Delete",
 		QueryRaw: query,
 	}
 	_, err = r.db.DB().ExecContext(ctx, q, args...)

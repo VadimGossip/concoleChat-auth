@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// Placeholder
 const (
 	PlaceholderDollar   = "$"
 	PlaceholderQuestion = "?"

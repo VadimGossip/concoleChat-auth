@@ -3,17 +3,19 @@ package app
 import (
 	"context"
 	"fmt"
-	"github.com/VadimGossip/concoleChat-auth/internal/client/db/transaction"
-	"github.com/VadimGossip/concoleChat-auth/internal/closer"
 	"log"
 
 	"github.com/VadimGossip/concoleChat-auth/internal/api/user"
 	"github.com/VadimGossip/concoleChat-auth/internal/client/db"
 	"github.com/VadimGossip/concoleChat-auth/internal/client/db/pg"
+	"github.com/VadimGossip/concoleChat-auth/internal/client/db/transaction"
+	"github.com/VadimGossip/concoleChat-auth/internal/closer"
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository"
+	auditRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/audit"
 	userRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/user"
 	"github.com/VadimGossip/concoleChat-auth/internal/service"
+	auditService "github.com/VadimGossip/concoleChat-auth/internal/service/audit"
 	userService "github.com/VadimGossip/concoleChat-auth/internal/service/user"
 	"github.com/sirupsen/logrus"
 )
@@ -23,9 +25,11 @@ type serviceProvider struct {
 
 	dbClient  db.Client
 	txManager db.TxManager
+	auditRepo repository.AuditRepository
 	userRepo  repository.UserRepository
 
-	userService service.UserService
+	auditService service.AuditService
+	userService  service.UserService
 
 	userImpl *user.Implementation
 }
@@ -60,6 +64,20 @@ func (s *serviceProvider) TxManager(ctx context.Context) db.TxManager {
 	return s.txManager
 }
 
+func (s *serviceProvider) AuditRepository(ctx context.Context) repository.AuditRepository {
+	if s.auditRepo == nil {
+		s.auditRepo = auditRepo.NewRepository(s.DBClient(ctx))
+	}
+	return s.auditRepo
+}
+
+func (s *serviceProvider) AuditService(ctx context.Context) service.AuditService {
+	if s.auditService == nil {
+		s.auditService = auditService.NewService(s.AuditRepository(ctx))
+	}
+	return s.auditService
+}
+
 func (s *serviceProvider) UserRepository(ctx context.Context) repository.UserRepository {
 	if s.userRepo == nil {
 		s.userRepo = userRepo.NewRepository(s.DBClient(ctx))
@@ -69,7 +87,7 @@ func (s *serviceProvider) UserRepository(ctx context.Context) repository.UserRep
 
 func (s *serviceProvider) UserService(ctx context.Context) service.UserService {
 	if s.userService == nil {
-		s.userService = userService.NewService(s.UserRepository(ctx), s.TxManager(ctx))
+		s.userService = userService.NewService(s.UserRepository(ctx), s.AuditService(ctx), s.TxManager(ctx))
 	}
 	return s.userService
 }

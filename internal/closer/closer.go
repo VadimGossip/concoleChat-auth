@@ -1,10 +1,11 @@
 package closer
 
 import (
-	"github.com/sirupsen/logrus"
 	"os"
 	"os/signal"
 	"sync"
+
+	"github.com/sirupsen/logrus"
 )
 
 var globalCloser = New()
