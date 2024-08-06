@@ -12,3 +12,7 @@ type UserService interface {
 	Update(ctx context.Context, id int64, updateInfo *model.UpdateUserInfo) error
 	Delete(ctx context.Context, id int64) error
 }
+
+type AuditService interface {
+	Create(ctx context.Context, audit *model.Audit) error
+}

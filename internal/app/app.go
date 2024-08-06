@@ -3,14 +3,18 @@ package app
 import (
 	"context"
 	"fmt"
+	"net"
 	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
+	"github.com/VadimGossip/concoleChat-auth/internal/closer"
 	"github.com/VadimGossip/concoleChat-auth/internal/config"
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
+	desc "github.com/VadimGossip/concoleChat-auth/pkg/user_v1"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/reflection"
 )
 
 func init() {
@@ -20,55 +24,90 @@ func init() {
 }
 
 type App struct {
-	*Factory
-	name         string
-	configDir    string
-	appStartedAt time.Time
-	cfg          *model.Config
-	grpcServer   *GrpcServer
+	serviceProvider *serviceProvider
+	name            string
+	configDir       string
+	appStartedAt    time.Time
+	cfg             *model.Config
+	grpcServer      *grpc.Server
 }
 
-func NewApp(name, configDir string, appStartedAt time.Time) *App {
-	return &App{
+func NewApp(ctx context.Context, name, configDir string, appStartedAt time.Time) (*App, error) {
+	a := &App{
 		name:         name,
 		configDir:    configDir,
 		appStartedAt: appStartedAt,
 	}
+
+	if err := a.initDeps(ctx); err != nil {
+		return nil, err
+	}
+
+	return a, nil
 }
 
-func (app *App) Run() error {
-	ctx := context.Background()
-	cfg, err := config.Init(app.configDir)
-	if err != nil {
-		return fmt.Errorf("[%s] config initialization error: %s", app.name, err)
+func (a *App) initDeps(ctx context.Context) error {
+	inits := []func(context.Context) error{
+		a.initConfig,
+		a.initServiceProvider,
+		a.initGRPCServer,
 	}
-	app.cfg = cfg
-	logrus.Infof("[%s] got config: [%+v]", app.name, *app.cfg)
 
-	dbAdapter := NewDBAdapter(cfg.Db)
-	if err = dbAdapter.Connect(ctx); err != nil {
-		return fmt.Errorf("[%s] fail to connect db: %s", app.name, err)
-	}
-	app.Factory = newFactory(dbAdapter)
-
-	go func() {
-		app.grpcServer = NewGrpcServer(cfg.AppGrpcServer.Port)
-		grpcRouter := initGrpcRouter(app)
-		if err = app.grpcServer.Listen(grpcRouter); err != nil {
-			logrus.Fatalf("Failed to start GRPC server %s", err)
+	for _, f := range inits {
+		if err := f(ctx); err != nil {
+			return err
 		}
+	}
+
+	return nil
+}
+
+func (a *App) initConfig(_ context.Context) error {
+	cfg, err := config.Init(a.configDir)
+	if err != nil {
+		return fmt.Errorf("[%s] config initialization error: %s", a.name, err)
+	}
+	a.cfg = cfg
+	logrus.Infof("[%s] got config: [%+v]", a.name, *a.cfg)
+	return nil
+}
+
+func (a *App) initServiceProvider(_ context.Context) error {
+	a.serviceProvider = newServiceProvider(a.cfg)
+	return nil
+}
+
+func (a *App) initGRPCServer(ctx context.Context) error {
+	a.grpcServer = grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
+
+	reflection.Register(a.grpcServer)
+
+	desc.RegisterUserV1Server(a.grpcServer, a.serviceProvider.UserImpl(ctx))
+
+	return nil
+}
+
+func (a *App) runGRPCServer() error {
+	logrus.Infof("[grpc/server] Starting on port: %d", a.cfg.AppGrpcServer.Port)
+
+	list, err := net.Listen("tcp", fmt.Sprintf(":%d", a.cfg.AppGrpcServer.Port))
+	if err != nil {
+		return err
+	}
+
+	err = a.grpcServer.Serve(list)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *App) Run() error {
+	defer func() {
+		closer.CloseAll()
+		closer.Wait()
 	}()
 
-	logrus.Infof("[%s] started", app.name)
-
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, syscall.SIGTERM, syscall.SIGINT)
-	logrus.Infof("[%s] got signal: [%s]", app.name, <-c)
-
-	if err = dbAdapter.Disconnect(ctx); err != nil {
-		return fmt.Errorf("[%s] fail to diconnect db: %s", app.name, err)
-	}
-
-	logrus.Infof("[%s] stopped", app.name)
-	return nil
+	return a.runGRPCServer()
 }

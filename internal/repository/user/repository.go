@@ -7,77 +7,69 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
+
+	"github.com/VadimGossip/concoleChat-auth/internal/client/db"
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	def "github.com/VadimGossip/concoleChat-auth/internal/repository"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository/user/converter"
 	repoModel "github.com/VadimGossip/concoleChat-auth/internal/repository/user/model"
 	"github.com/jackc/pgx/v4"
-	"github.com/sirupsen/logrus"
 )
 
 const (
-	users     string = "users"
-	columnID  string = "id"
-	username  string = "username"
-	password  string = "password"
-	email     string = "email"
-	role      string = "role"
-	createdAt string = "created_at"
-	updatedAt string = "updated_at"
+	usersTableName  string = "users"
+	idColumn        string = "id"
+	usernameColumn  string = "username"
+	passwordColumn  string = "password"
+	emailColumn     string = "email"
+	roleColumn      string = "role"
+	createdAtColumn string = "created_at"
+	updatedAtColumn string = "updated_at"
+	repoName        string = "user_repository"
 )
 
 var _ def.UserRepository = (*repository)(nil)
 
 type repository struct {
-	db *pgx.Conn
+	db db.Client
 }
 
-func NewRepository(db *pgx.Conn) *repository {
+func NewRepository(db db.Client) *repository {
 	return &repository{
 		db: db,
 	}
 }
 
-func (r *repository) BeginTxSerializable(ctx context.Context) (pgx.Tx, error) {
-	return r.db.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.Serializable})
-}
-
-func (r *repository) StopTx(ctx context.Context, tx pgx.Tx, err error) error {
-	if err != nil {
-		if rbErr := tx.Rollback(ctx); rbErr != nil {
-			logrus.Errorf("error while rollback transaction: %s", rbErr)
-		}
-		return err
-	}
-	return tx.Commit(ctx)
-}
-
 // Create need to hash password
-func (r *repository) Create(ctx context.Context, tx pgx.Tx, info *model.UserInfo) (int64, error) {
+func (r *repository) Create(ctx context.Context, info *model.UserInfo) (int64, error) {
 	repoInfo := converter.ToRepoFromUserInfo(info)
-	userInsert := sq.Insert(users).
+	userInsert := sq.Insert(usersTableName).
 		PlaceholderFormat(sq.Dollar).
-		Columns(username, password, email, role, createdAt).
+		Columns(usernameColumn, passwordColumn, emailColumn, roleColumn, createdAtColumn).
 		Values(repoInfo.Name, repoInfo.Password, repoInfo.Email, repoInfo.Role, time.Now()).
-		Suffix("RETURNING " + columnID)
+		Suffix("RETURNING " + idColumn)
 
 	query, args, err := userInsert.ToSql()
 	if err != nil {
 		return 0, err
 	}
 	var id int64
-	if err = tx.QueryRow(ctx, query, args...).Scan(&id); err != nil {
+	q := db.Query{
+		Name:     repoName + ".Create",
+		QueryRaw: query,
+	}
+	if err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(&id); err != nil {
 		return 0, err
 	}
 
 	return id, nil
 }
 
-func (r *repository) Get(ctx context.Context, tx pgx.Tx, ID int64) (*model.User, error) {
-	userSelect := sq.Select(username, email, role, createdAt, updatedAt).
-		From(users).
+func (r *repository) Get(ctx context.Context, ID int64) (*model.User, error) {
+	userSelect := sq.Select(usernameColumn, emailColumn, roleColumn, createdAtColumn, updatedAtColumn).
+		From(usersTableName).
 		PlaceholderFormat(sq.Dollar).
-		Where(sq.Eq{columnID: ID})
+		Where(sq.Eq{idColumn: ID})
 
 	query, args, err := userSelect.ToSql()
 	if err != nil {
@@ -85,7 +77,11 @@ func (r *repository) Get(ctx context.Context, tx pgx.Tx, ID int64) (*model.User,
 	}
 
 	repoUser := &repoModel.User{ID: ID}
-	if err = tx.QueryRow(ctx, query, args...).Scan(&repoUser.Info.Name, &repoUser.Info.Email, &repoUser.Info.Role, &repoUser.CreatedAt, &repoUser.UpdatedAt); err != nil {
+	q := db.Query{
+		Name:     repoName + ".Get",
+		QueryRaw: query,
+	}
+	if err = r.db.DB().ScanOneContext(ctx, repoUser, q, args...); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, fmt.Errorf("user not found")
 		}
@@ -94,21 +90,21 @@ func (r *repository) Get(ctx context.Context, tx pgx.Tx, ID int64) (*model.User,
 	return converter.ToUserFromRepo(repoUser), nil
 }
 
-func (r *repository) Update(ctx context.Context, tx pgx.Tx, ID int64, updateInfo *model.UpdateUserInfo) error {
-	userUpdate := sq.Update(users).
+func (r *repository) Update(ctx context.Context, ID int64, updateInfo *model.UpdateUserInfo) error {
+	userUpdate := sq.Update(usersTableName).
 		PlaceholderFormat(sq.Dollar).
 		Set("updated_at", time.Now()).
-		Where(sq.Eq{columnID: ID})
+		Where(sq.Eq{idColumn: ID})
 
 	if updateInfo.Name != nil {
-		userUpdate = userUpdate.Set(username, *updateInfo.Name)
+		userUpdate = userUpdate.Set(usernameColumn, *updateInfo.Name)
 	}
 
 	if updateInfo.Email != nil {
-		userUpdate = userUpdate.Set(email, *updateInfo.Email)
+		userUpdate = userUpdate.Set(emailColumn, *updateInfo.Email)
 	}
 	if updateInfo.Role != model.UnknownRole {
-		userUpdate = userUpdate.Set(role, updateInfo.Role)
+		userUpdate = userUpdate.Set(roleColumn, updateInfo.Role)
 	}
 
 	query, args, err := userUpdate.ToSql()
@@ -116,24 +112,33 @@ func (r *repository) Update(ctx context.Context, tx pgx.Tx, ID int64, updateInfo
 		return err
 	}
 
-	_, err = tx.Exec(ctx, query, args...)
+	q := db.Query{
+		Name:     repoName + ".Update",
+		QueryRaw: query,
+	}
+	_, err = r.db.DB().ExecContext(ctx, q, args...)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *repository) Delete(ctx context.Context, tx pgx.Tx, ID int64) error {
-	chatDelete := sq.Delete(users).
+func (r *repository) Delete(ctx context.Context, ID int64) error {
+	chatDelete := sq.Delete(usersTableName).
 		PlaceholderFormat(sq.Dollar).
-		Where(sq.Eq{columnID: ID})
+		Where(sq.Eq{idColumn: ID})
 
 	query, args, err := chatDelete.ToSql()
 	if err != nil {
 		return err
 	}
 
-	if _, err = tx.Exec(ctx, query, args...); err != nil {
+	q := db.Query{
+		Name:     repoName + ".Delete",
+		QueryRaw: query,
+	}
+	_, err = r.db.DB().ExecContext(ctx, q, args...)
+	if err != nil {
 		return err
 	}
 
