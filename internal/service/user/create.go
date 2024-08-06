@@ -27,7 +27,7 @@ func (s *service) Create(ctx context.Context, info *model.UserInfo) (int64, erro
 			return txErr
 		}
 
-		return nil
+		return txErr
 	})
 
 	if err != nil {

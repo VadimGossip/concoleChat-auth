@@ -21,6 +21,6 @@ func (s *service) Update(ctx context.Context, ID int64, updateInfo *model.Update
 			return txErr
 		}
 
-		return nil
+		return txErr
 	})
 }

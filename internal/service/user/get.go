@@ -23,7 +23,7 @@ func (s *service) Get(ctx context.Context, ID int64) (*model.User, error) {
 			return txErr
 		}
 
-		return nil
+		return txErr
 	})
 
 	if err != nil {

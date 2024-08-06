@@ -2,6 +2,7 @@ package audit
 
 import (
 	"context"
+
 	sq "github.com/Masterminds/squirrel"
 
 	"github.com/VadimGossip/concoleChat-auth/internal/client/db"
