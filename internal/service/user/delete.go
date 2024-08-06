@@ -14,13 +14,14 @@ func (s *service) Delete(ctx context.Context, ID int64) error {
 			return txErr
 		}
 
-		if txErr = s.auditService.Create(ctx, &model.Audit{
+		txErr = s.auditService.Create(ctx, &model.Audit{
 			Action:     "delete user",
 			CallParams: fmt.Sprintf("id %d", ID),
-		}); txErr != nil {
+		})
+		if txErr != nil {
 			return txErr
 		}
 
-		return txErr
+		return nil
 	})
 }

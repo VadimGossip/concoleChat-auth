@@ -14,13 +14,14 @@ func (s *service) Update(ctx context.Context, ID int64, updateInfo *model.Update
 			return txErr
 		}
 
-		if txErr = s.auditService.Create(ctx, &model.Audit{
+		txErr = s.auditService.Create(ctx, &model.Audit{
 			Action:     "update user",
 			CallParams: fmt.Sprintf("id %d updateInfo %+v", ID, updateInfo),
-		}); txErr != nil {
+		})
+		if txErr != nil {
 			return txErr
 		}
 
-		return txErr
+		return nil
 	})
 }
