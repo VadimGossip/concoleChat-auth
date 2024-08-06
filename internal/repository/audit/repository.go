@@ -2,8 +2,6 @@ package audit
 
 import (
 	"context"
-	"time"
-
 	sq "github.com/Masterminds/squirrel"
 
 	"github.com/VadimGossip/concoleChat-auth/internal/client/db"
@@ -16,7 +14,6 @@ const (
 	auditTableName   string = "audit_log"
 	actionColumn     string = "action"
 	callParamsColumn string = "call_params"
-	createdAtColumn  string = "created_at"
 	repoName         string = "audit_repository"
 )
 
@@ -36,8 +33,8 @@ func (r *repository) Create(ctx context.Context, audit *model.Audit) error {
 	repoAudit := converter.ToRepoFromAudit(audit)
 	userInsert := sq.Insert(auditTableName).
 		PlaceholderFormat(sq.Dollar).
-		Columns(actionColumn, callParamsColumn, createdAtColumn).
-		Values(repoAudit.Action, repoAudit.CallParams, time.Now())
+		Columns(actionColumn, callParamsColumn).
+		Values(repoAudit.Action, repoAudit.CallParams)
 
 	query, args, err := userInsert.ToSql()
 	if err != nil {

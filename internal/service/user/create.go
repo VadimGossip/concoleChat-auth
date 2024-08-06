@@ -19,10 +19,15 @@ func (s *service) Create(ctx context.Context, info *model.UserInfo) (int64, erro
 		if txErr != nil {
 			return txErr
 		}
-		return s.auditService.Create(ctx, &model.Audit{
+
+		if txErr = s.auditService.Create(ctx, &model.Audit{
 			Action:     "create user",
 			CallParams: fmt.Sprintf("info %+v", info),
-		})
+		}); txErr != nil {
+			return txErr
+		}
+
+		return nil
 	})
 
 	if err != nil {

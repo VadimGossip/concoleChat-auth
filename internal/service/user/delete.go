@@ -13,9 +13,14 @@ func (s *service) Delete(ctx context.Context, ID int64) error {
 		if txErr = s.userRepository.Delete(ctx, ID); txErr != nil {
 			return txErr
 		}
-		return s.auditService.Create(ctx, &model.Audit{
+
+		if txErr = s.auditService.Create(ctx, &model.Audit{
 			Action:     "delete user",
 			CallParams: fmt.Sprintf("id %d", ID),
-		})
+		}); txErr != nil {
+			return txErr
+		}
+
+		return nil
 	})
 }

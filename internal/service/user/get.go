@@ -15,10 +15,15 @@ func (s *service) Get(ctx context.Context, ID int64) (*model.User, error) {
 		if txErr != nil {
 			return txErr
 		}
-		return s.auditService.Create(ctx, &model.Audit{
+
+		if txErr = s.auditService.Create(ctx, &model.Audit{
 			Action:     "get user",
 			CallParams: fmt.Sprintf("id %d", ID),
-		})
+		}); txErr != nil {
+			return txErr
+		}
+
+		return nil
 	})
 
 	if err != nil {

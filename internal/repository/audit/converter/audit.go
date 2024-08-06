@@ -10,6 +10,5 @@ func ToRepoFromAudit(audit *model.Audit) *repoModel.Audit {
 		ID:         audit.ID,
 		Action:     audit.Action,
 		CallParams: audit.CallParams,
-		CreatedAt:  audit.CreatedAt,
 	}
 }
