@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/VadimGossip/platform_common/pkg/closer"
+	db "github.com/VadimGossip/platform_common/pkg/db/postgres"
+	"github.com/VadimGossip/platform_common/pkg/db/postgres/pg"
+	"github.com/VadimGossip/platform_common/pkg/db/postgres/transaction"
+	"github.com/sirupsen/logrus"
+
 	"github.com/VadimGossip/concoleChat-auth/internal/api/user"
-	"github.com/VadimGossip/concoleChat-auth/internal/client/db"
-	"github.com/VadimGossip/concoleChat-auth/internal/client/db/pg"
-	"github.com/VadimGossip/concoleChat-auth/internal/client/db/transaction"
-	"github.com/VadimGossip/concoleChat-auth/internal/closer"
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository"
 	auditRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/audit"
@@ -17,7 +19,6 @@ import (
 	"github.com/VadimGossip/concoleChat-auth/internal/service"
 	auditService "github.com/VadimGossip/concoleChat-auth/internal/service/audit"
 	userService "github.com/VadimGossip/concoleChat-auth/internal/service/user"
-	"github.com/sirupsen/logrus"
 )
 
 type serviceProvider struct {

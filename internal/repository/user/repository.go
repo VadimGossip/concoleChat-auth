@@ -7,8 +7,8 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
+	db "github.com/VadimGossip/platform_common/pkg/db/postgres"
 
-	"github.com/VadimGossip/concoleChat-auth/internal/client/db"
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	def "github.com/VadimGossip/concoleChat-auth/internal/repository"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository/user/converter"
