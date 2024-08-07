@@ -13,6 +13,11 @@ type UserRepository interface {
 	Delete(ctx context.Context, ID int64) error
 }
 
+type UserCacheRepository interface {
+	Get(ctx context.Context, ID int64) (*model.User, error)
+	Delete(ctx context.Context, ID int64) error
+}
+
 type AuditRepository interface {
 	Create(ctx context.Context, audit *model.Audit) error
 }

@@ -1,9 +1,11 @@
-package user
+package pg
 
 import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/VadimGossip/concoleChat-auth/internal/repository/user/pg/converter"
+	repoModel "github.com/VadimGossip/concoleChat-auth/internal/repository/user/pg/model"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
@@ -11,8 +13,6 @@ import (
 
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	def "github.com/VadimGossip/concoleChat-auth/internal/repository"
-	"github.com/VadimGossip/concoleChat-auth/internal/repository/user/converter"
-	repoModel "github.com/VadimGossip/concoleChat-auth/internal/repository/user/model"
 	"github.com/jackc/pgx/v4"
 )
 

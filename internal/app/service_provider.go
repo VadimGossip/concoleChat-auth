@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	userRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/user/pg"
 	"log"
 
 	"github.com/VadimGossip/platform_common/pkg/closer"
@@ -15,7 +16,6 @@ import (
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository"
 	auditRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/audit"
-	userRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/user"
 	"github.com/VadimGossip/concoleChat-auth/internal/service"
 	auditService "github.com/VadimGossip/concoleChat-auth/internal/service/audit"
 	userService "github.com/VadimGossip/concoleChat-auth/internal/service/user"

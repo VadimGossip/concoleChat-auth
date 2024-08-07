@@ -1,10 +1,10 @@
 package converter
 
 import (
+	repoModel "github.com/VadimGossip/concoleChat-auth/internal/repository/user/pg/model"
 	"time"
 
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
-	repoModel "github.com/VadimGossip/concoleChat-auth/internal/repository/user/model"
 )
 
 func ToUserFromRepo(user *repoModel.User) *model.User {
