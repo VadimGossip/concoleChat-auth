@@ -13,11 +13,29 @@ func parseConfigFile(configDir string) error {
 }
 
 func setFromEnv(cfg *model.Config) error {
-	return envconfig.Process("db", &cfg.Db)
+	if err := envconfig.Process("pg_db", &cfg.PgDb); err != nil {
+		return err
+	}
+
+	err := envconfig.Process("redis_db", &cfg.RedisDb)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func unmarshal(cfg *model.Config) error {
-	return viper.UnmarshalKey("app_grpc", &cfg.AppGrpcServer)
+	if err := viper.UnmarshalKey("app_grpc", &cfg.AppGrpcServer); err != nil {
+		return err
+	}
+
+	err := viper.UnmarshalKey("user_cache", &cfg.UserCache)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func Init(configDir string) (*model.Config, error) {

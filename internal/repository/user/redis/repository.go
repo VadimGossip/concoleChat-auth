@@ -3,6 +3,7 @@ package pg
 import (
 	"context"
 	"strconv"
+	"time"
 
 	db "github.com/VadimGossip/concoleChat-auth/internal/client/db/redis"
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
@@ -28,6 +29,11 @@ func (r *repository) Get(ctx context.Context, ID int64) (*model.User, error) {
 		return nil, err
 	}
 	return converter.ToUserFromRepo(repoUser), nil
+}
+
+func (r *repository) Set(ctx context.Context, user *model.User, expire time.Duration) error {
+	repoUser := converter.ToRepoFromUser(user)
+	return r.db.DB().HSet(ctx, strconv.FormatInt(repoUser.ID, 10), repoUser, expire)
 }
 
 func (r *repository) Delete(ctx context.Context, ID int64) error {

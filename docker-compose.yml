@@ -22,12 +22,16 @@ services:
     container_name: auth
     environment:
      - APP_PORT=8086
-     - DB_HOST=pg-auth
-     - DB_PORT=5432
-     - DB_USERNAME=postgres
-     - DB_NAME=auth-db
-     - DB_SSLMODE=disable
-     - DB_PASSWORD=postgres
+     - PG_HOST=pg-auth
+     - PG_PORT=5432
+     - PG_USERNAME=postgres
+     - PG_NAME=auth-db
+     - PG_SSLMODE=disable
+     - PG_PASSWORD=postgres
+     - REDIS_PORT=6379
+     - REDIS_DB=0
+     - REDIS_READ_TIMEOUT_SEC = 300
+     - REDIS_READ_WRITE_SEC = 300
     ports:
       - 8086:8086
     build:

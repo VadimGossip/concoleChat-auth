@@ -41,7 +41,7 @@ func (db *rdb) HGetAll(ctx context.Context, key string, dest interface{}) error 
 	return db.dbc.HGetAll(ctx, key).Scan(dest)
 }
 
-func (db *rdb) HashSet(ctx context.Context, key string, values interface{}, expire time.Duration) error {
+func (db *rdb) HSet(ctx context.Context, key string, values interface{}, expire time.Duration) error {
 	if expire > 0 {
 		return db.dbc.HSet(ctx, key, values, expire).Err()
 	}

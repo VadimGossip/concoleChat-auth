@@ -17,7 +17,7 @@ type Execer interface {
 	MGet(ctx context.Context, keys ...string) *redis.SliceCmd
 	MGetWithDur(ctx context.Context, keys ...string) ([]any, time.Duration, error)
 	HGetAll(ctx context.Context, key string, dest interface{}) error
-	HashSet(ctx context.Context, key string, values interface{}, expire time.Duration) error
+	HSet(ctx context.Context, key string, values interface{}, expire time.Duration) error
 	Del(ctx context.Context, keys ...string) error
 }
 

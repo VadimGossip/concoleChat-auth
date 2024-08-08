@@ -22,6 +22,11 @@ func (s *service) Update(ctx context.Context, ID int64, updateInfo *model.Update
 			return txErr
 		}
 
+		txErr = s.userCacheService.Delete(ctx, ID)
+		if txErr != nil {
+			return txErr
+		}
+
 		return nil
 	})
 }

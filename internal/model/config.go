@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-type NetServerConfig struct {
+type NetServerCfg struct {
 	Port int
 }
 
@@ -15,18 +15,23 @@ type PGDbCfg struct {
 	Password string
 }
 
-type RedisDbConfig struct {
-	Host         string
-	Port         int
-	Username     string
-	Password     string
-	Db           int
-	ReadTimeout  time.Duration
-	WriteTimeout time.Duration
+type RedisDbCfg struct {
+	Host            string
+	Port            int
+	Username        string
+	Password        string
+	Db              int
+	ReadTimeoutSec  int
+	WriteTimeoutSec int
+}
+
+type UserCacheCfg struct {
+	Expire time.Duration
 }
 
 type Config struct {
-	AppGrpcServer NetServerConfig
+	AppGrpcServer NetServerCfg
 	PgDb          PGDbCfg
-	RedisDb       RedisDbConfig
+	RedisDb       RedisDbCfg
+	UserCache     UserCacheCfg
 }

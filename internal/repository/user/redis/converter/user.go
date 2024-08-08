@@ -17,11 +17,30 @@ func ToUserFromRepo(user *repoModel.User) *model.User {
 	return &model.User{
 		ID: user.ID,
 		Info: model.UserInfo{
-			Name:  user.Name,
-			Email: user.Email,
-			Role:  user.Role,
+			Name:     user.Name,
+			Email:    user.Email,
+			Password: user.Password,
+			Role:     user.Role,
 		},
 		CreatedAt: time.Unix(user.CreatedAt, 0),
+		UpdatedAt: updatedAt,
+	}
+}
+
+func ToRepoFromUser(user *model.User) *repoModel.User {
+	var updatedAt *int64
+	if user.UpdatedAt != nil {
+		tmpUpdatedAt := user.UpdatedAt.Unix()
+		updatedAt = &tmpUpdatedAt
+	}
+
+	return &repoModel.User{
+		ID:        user.ID,
+		Name:      user.Info.Name,
+		Email:     user.Info.Email,
+		Password:  user.Info.Password,
+		Role:      user.Info.Role,
+		CreatedAt: user.CreatedAt.Unix(),
 		UpdatedAt: updatedAt,
 	}
 }
