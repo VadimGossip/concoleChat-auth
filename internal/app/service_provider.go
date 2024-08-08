@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	userRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/user/pg"
+
 	"log"
 	"time"
 
@@ -11,14 +11,15 @@ import (
 	"github.com/VadimGossip/platform_common/pkg/db/postgres"
 	"github.com/VadimGossip/platform_common/pkg/db/postgres/pg"
 	"github.com/VadimGossip/platform_common/pkg/db/postgres/transaction"
+	"github.com/VadimGossip/platform_common/pkg/db/redis"
+	"github.com/VadimGossip/platform_common/pkg/db/redis/rdb"
 	"github.com/sirupsen/logrus"
 
 	"github.com/VadimGossip/concoleChat-auth/internal/api/user"
-	"github.com/VadimGossip/concoleChat-auth/internal/client/db/redis"
-	"github.com/VadimGossip/concoleChat-auth/internal/client/db/redis/rdb"
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository"
 	auditRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/audit"
+	userRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/user/pg"
 	userCacheRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/user/redis"
 	"github.com/VadimGossip/concoleChat-auth/internal/service"
 	auditService "github.com/VadimGossip/concoleChat-auth/internal/service/audit"

@@ -1,8 +1,9 @@
 package converter
 
 import (
-	repoModel "github.com/VadimGossip/concoleChat-auth/internal/repository/user/redis/model"
 	"time"
+
+	repoModel "github.com/VadimGossip/concoleChat-auth/internal/repository/user/redis/model"
 
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 )

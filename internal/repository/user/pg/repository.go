@@ -4,16 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/VadimGossip/concoleChat-auth/internal/repository/user/pg/converter"
-	repoModel "github.com/VadimGossip/concoleChat-auth/internal/repository/user/pg/model"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	db "github.com/VadimGossip/platform_common/pkg/db/postgres"
+	"github.com/jackc/pgx/v4"
 
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	def "github.com/VadimGossip/concoleChat-auth/internal/repository"
-	"github.com/jackc/pgx/v4"
+	"github.com/VadimGossip/concoleChat-auth/internal/repository/user/pg/converter"
+	repoModel "github.com/VadimGossip/concoleChat-auth/internal/repository/user/pg/model"
 )
 
 const (

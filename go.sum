@@ -6,6 +6,8 @@ github.com/VadimGossip/platform_common v0.0.0-20240807125445-7538ec7b9241 h1:usR
 github.com/VadimGossip/platform_common v0.0.0-20240807125445-7538ec7b9241/go.mod h1:cvk1CcNLKaUB72a7FBn23skgoAXpMB8/WilztOc6Pmg=
 github.com/VadimGossip/platform_common v1.0.0 h1:VhbkfL+agsAjsJVr9hVa8Y4AEwWklfhXiiTbySwU1i0=
 github.com/VadimGossip/platform_common v1.0.0/go.mod h1:HvkYi+XTWptfwORCHOkfwJfx9ISrXy+Iqkped1AXf6Q=
+github.com/VadimGossip/platform_common v1.0.1 h1:ObBlepGr6pZCNM82N97lQaXVteZwNayRrfKwXqTl6r8=
+github.com/VadimGossip/platform_common v1.0.1/go.mod h1:y5dNACKRvzkIdtzjk1+zh+oHOP0N5KobTlwpQsWOrqA=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
 github.com/cespare/xxhash/v2 v2.3.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/cockroachdb/apd v1.1.0 h1:3LFP3629v+1aKXU5Q37mxmRxX/pIu1nijXydLShEq5I=
