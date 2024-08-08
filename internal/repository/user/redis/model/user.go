@@ -1,8 +1,5 @@
 package model
 
-type UserInfo struct {
-}
-
 type User struct {
 	ID        int64  `redis:"id"`
 	Name      string `redis:"name"`
@@ -10,5 +7,5 @@ type User struct {
 	Password  string `redis:"password"`
 	Role      string `redis:"role"`
 	CreatedAt int64  `redis:"created_at"`
-	UpdatedAt *int64 `redis:"updated_at"`
+	UpdatedAt int64  `redis:"updated_at"`
 }

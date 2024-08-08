@@ -2,6 +2,7 @@ version: "3.9"
 
 volumes:
   postgres_volume:
+  redis_volume:
 
 services:
   pg-auth:
@@ -17,6 +18,15 @@ services:
       - auth-network
     volumes:
       - postgres_volume:/var/lib/postgresql/data
+  redis-auth:
+    image: redis:7.2.5-alpine3.20
+    ports:
+      - "6379:6379"
+    restart: always
+    networks:
+      - auth-network
+    volumes:
+      - redis_volume:/var/lib/redis/data
   auth:
     image: auth
     container_name: auth
@@ -28,6 +38,7 @@ services:
      - PG_NAME=auth-db
      - PG_SSLMODE=disable
      - PG_PASSWORD=postgres
+     - REDIS_HOST=redis-auth
      - REDIS_PORT=6379
      - REDIS_DB=0
      - REDIS_READ_TIMEOUT_SEC = 300
@@ -42,6 +53,7 @@ services:
      - auth-network
     depends_on:
       - pg-auth
+      - redis-auth
   migrator:
     build:
       context: .

@@ -9,8 +9,8 @@ import (
 
 func ToUserFromRepo(user *repoModel.User) *model.User {
 	var updatedAt *time.Time
-	if user.UpdatedAt != nil {
-		tmpUpdatedAt := time.Unix(*user.UpdatedAt, 0)
+	if user.UpdatedAt != 0 {
+		tmpUpdatedAt := time.Unix(user.UpdatedAt, 0)
 		updatedAt = &tmpUpdatedAt
 	}
 
@@ -27,14 +27,13 @@ func ToUserFromRepo(user *repoModel.User) *model.User {
 	}
 }
 
-func ToRepoFromUser(user *model.User) *repoModel.User {
-	var updatedAt *int64
+func ToRepoFromUser(user *model.User) repoModel.User {
+	var updatedAt int64
 	if user.UpdatedAt != nil {
-		tmpUpdatedAt := user.UpdatedAt.Unix()
-		updatedAt = &tmpUpdatedAt
+		updatedAt = user.UpdatedAt.Unix()
 	}
 
-	return &repoModel.User{
+	return repoModel.User{
 		ID:        user.ID,
 		Name:      user.Info.Name,
 		Email:     user.Info.Email,

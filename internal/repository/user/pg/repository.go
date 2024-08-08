@@ -62,7 +62,7 @@ func (r *repository) Create(ctx context.Context, info *model.UserInfo) (*model.U
 		Scan(&user.ID,
 			&user.Info.Name,
 			&user.Info.Password,
-			&user.Info.Password,
+			&user.Info.Email,
 			&user.Info.Role,
 			&user.CreatedAt); err != nil {
 		return nil, err

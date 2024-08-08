@@ -42,10 +42,14 @@ func (db *rdb) HGetAll(ctx context.Context, key string, dest interface{}) error 
 }
 
 func (db *rdb) HSet(ctx context.Context, key string, values interface{}, expire time.Duration) error {
-	if expire > 0 {
-		return db.dbc.HSet(ctx, key, values, expire).Err()
+	if err := db.dbc.HSet(ctx, key, values).Err(); err != nil {
+		return err
 	}
-	return db.dbc.HSet(ctx, key, values).Err()
+	if expire > 0 {
+		return db.dbc.Expire(ctx, key, expire).Err()
+	}
+
+	return nil
 }
 
 func (db *rdb) Del(ctx context.Context, keys ...string) error {
