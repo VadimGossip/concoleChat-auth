@@ -1,5 +1,6 @@
 package service
 
 //go:generate sh -c "rm -rf mocks && mkdir -p mocks"
-//go:generate D:\Work\Go\github\concoleChat\concoleChat-auth\bin\minimock.exe -i UserService -o ./mocks/ -s "_minimock.go"
-//go:generate D:\Work\Go\github\concoleChat\concoleChat-auth\bin\minimock.exe -i AuditService -o ./mocks/ -s "_minimock.go"
+//go:generate ../../bin/minimock -i UserService -o mocks -s "_minimock.go" -g
+//go:generate ../../bin/minimock -i UserCacheService -o mocks -s "_minimock.go" -g
+//go:generate ../../bin/minimock -i AuditService -o mocks -s "_minimock.go" -g

@@ -2,8 +2,6 @@
 
 package mocks
 
-//go:generate minimock -i github.com/VadimGossip/concoleChat-auth/internal/repository.UserRepository -o user_repository_minimock.go -n UserRepositoryMock -p mocks
-
 import (
 	"context"
 	"sync"
@@ -19,7 +17,7 @@ type UserRepositoryMock struct {
 	t          minimock.Tester
 	finishOnce sync.Once
 
-	funcCreate          func(ctx context.Context, info *model.UserInfo) (i1 int64, err error)
+	funcCreate          func(ctx context.Context, info *model.UserInfo) (up1 *model.User, err error)
 	inspectFuncCreate   func(ctx context.Context, info *model.UserInfo)
 	afterCreateCounter  uint64
 	beforeCreateCounter uint64
@@ -104,7 +102,7 @@ type UserRepositoryMockCreateParamPtrs struct {
 
 // UserRepositoryMockCreateResults contains results of the UserRepository.Create
 type UserRepositoryMockCreateResults struct {
-	i1  int64
+	up1 *model.User
 	err error
 }
 
@@ -198,7 +196,7 @@ func (mmCreate *mUserRepositoryMockCreate) Inspect(f func(ctx context.Context, i
 }
 
 // Return sets up results that will be returned by UserRepository.Create
-func (mmCreate *mUserRepositoryMockCreate) Return(i1 int64, err error) *UserRepositoryMock {
+func (mmCreate *mUserRepositoryMockCreate) Return(up1 *model.User, err error) *UserRepositoryMock {
 	if mmCreate.mock.funcCreate != nil {
 		mmCreate.mock.t.Fatalf("UserRepositoryMock.Create mock is already set by Set")
 	}
@@ -206,12 +204,12 @@ func (mmCreate *mUserRepositoryMockCreate) Return(i1 int64, err error) *UserRepo
 	if mmCreate.defaultExpectation == nil {
 		mmCreate.defaultExpectation = &UserRepositoryMockCreateExpectation{mock: mmCreate.mock}
 	}
-	mmCreate.defaultExpectation.results = &UserRepositoryMockCreateResults{i1, err}
+	mmCreate.defaultExpectation.results = &UserRepositoryMockCreateResults{up1, err}
 	return mmCreate.mock
 }
 
 // Set uses given function f to mock the UserRepository.Create method
-func (mmCreate *mUserRepositoryMockCreate) Set(f func(ctx context.Context, info *model.UserInfo) (i1 int64, err error)) *UserRepositoryMock {
+func (mmCreate *mUserRepositoryMockCreate) Set(f func(ctx context.Context, info *model.UserInfo) (up1 *model.User, err error)) *UserRepositoryMock {
 	if mmCreate.defaultExpectation != nil {
 		mmCreate.mock.t.Fatalf("Default expectation is already set for the UserRepository.Create method")
 	}
@@ -240,8 +238,8 @@ func (mmCreate *mUserRepositoryMockCreate) When(ctx context.Context, info *model
 }
 
 // Then sets up UserRepository.Create return parameters for the expectation previously defined by the When method
-func (e *UserRepositoryMockCreateExpectation) Then(i1 int64, err error) *UserRepositoryMock {
-	e.results = &UserRepositoryMockCreateResults{i1, err}
+func (e *UserRepositoryMockCreateExpectation) Then(up1 *model.User, err error) *UserRepositoryMock {
+	e.results = &UserRepositoryMockCreateResults{up1, err}
 	return e.mock
 }
 
@@ -266,7 +264,7 @@ func (mmCreate *mUserRepositoryMockCreate) invocationsDone() bool {
 }
 
 // Create implements repository.UserRepository
-func (mmCreate *UserRepositoryMock) Create(ctx context.Context, info *model.UserInfo) (i1 int64, err error) {
+func (mmCreate *UserRepositoryMock) Create(ctx context.Context, info *model.UserInfo) (up1 *model.User, err error) {
 	mm_atomic.AddUint64(&mmCreate.beforeCreateCounter, 1)
 	defer mm_atomic.AddUint64(&mmCreate.afterCreateCounter, 1)
 
@@ -284,7 +282,7 @@ func (mmCreate *UserRepositoryMock) Create(ctx context.Context, info *model.User
 	for _, e := range mmCreate.CreateMock.expectations {
 		if minimock.Equal(*e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
-			return e.results.i1, e.results.err
+			return e.results.up1, e.results.err
 		}
 	}
 
@@ -313,7 +311,7 @@ func (mmCreate *UserRepositoryMock) Create(ctx context.Context, info *model.User
 		if mm_results == nil {
 			mmCreate.t.Fatal("No results are set for the UserRepositoryMock.Create")
 		}
-		return (*mm_results).i1, (*mm_results).err
+		return (*mm_results).up1, (*mm_results).err
 	}
 	if mmCreate.funcCreate != nil {
 		return mmCreate.funcCreate(ctx, info)

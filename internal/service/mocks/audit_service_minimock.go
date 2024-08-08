@@ -2,8 +2,6 @@
 
 package mocks
 
-//go:generate minimock -i github.com/VadimGossip/concoleChat-auth/internal/service.AuditService -o audit_service_minimock.go -n AuditServiceMock -p mocks
-
 import (
 	"context"
 	"sync"
