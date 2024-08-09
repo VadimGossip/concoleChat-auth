@@ -7,14 +7,15 @@ import (
 	"os"
 	"time"
 
-	"github.com/VadimGossip/concoleChat-auth/internal/closer"
-	"github.com/VadimGossip/concoleChat-auth/internal/config"
-	"github.com/VadimGossip/concoleChat-auth/internal/model"
-	desc "github.com/VadimGossip/concoleChat-auth/pkg/user_v1"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
+
+	"github.com/VadimGossip/concoleChat-auth/internal/config"
+	"github.com/VadimGossip/concoleChat-auth/internal/model"
+	desc "github.com/VadimGossip/concoleChat-auth/pkg/user_v1"
+	"github.com/VadimGossip/platform_common/pkg/closer"
 )
 
 func init() {

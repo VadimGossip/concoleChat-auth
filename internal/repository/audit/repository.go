@@ -5,7 +5,8 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 
-	"github.com/VadimGossip/concoleChat-auth/internal/client/db"
+	db "github.com/VadimGossip/platform_common/pkg/db/postgres"
+
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	def "github.com/VadimGossip/concoleChat-auth/internal/repository"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository/audit/converter"

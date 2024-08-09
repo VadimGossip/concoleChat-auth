@@ -1,4 +1,4 @@
-package user
+package pg
 
 import (
 	"context"
@@ -7,13 +7,13 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
+	db "github.com/VadimGossip/platform_common/pkg/db/postgres"
+	"github.com/jackc/pgx/v4"
 
-	"github.com/VadimGossip/concoleChat-auth/internal/client/db"
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	def "github.com/VadimGossip/concoleChat-auth/internal/repository"
-	"github.com/VadimGossip/concoleChat-auth/internal/repository/user/converter"
-	repoModel "github.com/VadimGossip/concoleChat-auth/internal/repository/user/model"
-	"github.com/jackc/pgx/v4"
+	"github.com/VadimGossip/concoleChat-auth/internal/repository/user/pg/converter"
+	repoModel "github.com/VadimGossip/concoleChat-auth/internal/repository/user/pg/model"
 )
 
 const (
@@ -41,28 +41,34 @@ func NewRepository(db db.Client) *repository {
 }
 
 // Create need to hash password
-func (r *repository) Create(ctx context.Context, info *model.UserInfo) (int64, error) {
+func (r *repository) Create(ctx context.Context, info *model.UserInfo) (*model.User, error) {
 	repoInfo := converter.ToRepoFromUserInfo(info)
 	userInsert := sq.Insert(usersTableName).
 		PlaceholderFormat(sq.Dollar).
 		Columns(usernameColumn, passwordColumn, emailColumn, roleColumn, createdAtColumn).
 		Values(repoInfo.Name, repoInfo.Password, repoInfo.Email, repoInfo.Role, time.Now()).
-		Suffix("RETURNING " + idColumn)
+		Suffix("RETURNING " + idColumn + "," + usernameColumn + "," + passwordColumn + "," + emailColumn + "," + roleColumn + "," + createdAtColumn)
 
 	query, args, err := userInsert.ToSql()
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	var id int64
+	user := &model.User{}
 	q := db.Query{
 		Name:     repoName + ".Create",
 		QueryRaw: query,
 	}
-	if err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(&id); err != nil {
-		return 0, err
+	if err = r.db.DB().QueryRowContext(ctx, q, args...).
+		Scan(&user.ID,
+			&user.Info.Name,
+			&user.Info.Password,
+			&user.Info.Email,
+			&user.Info.Role,
+			&user.CreatedAt); err != nil {
+		return nil, err
 	}
 
-	return id, nil
+	return user, nil
 }
 
 func (r *repository) Get(ctx context.Context, ID int64) (*model.User, error) {

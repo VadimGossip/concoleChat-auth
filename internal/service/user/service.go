@@ -1,7 +1,8 @@
 package user
 
 import (
-	"github.com/VadimGossip/concoleChat-auth/internal/client/db"
+	db "github.com/VadimGossip/platform_common/pkg/db/postgres"
+
 	"github.com/VadimGossip/concoleChat-auth/internal/repository"
 	def "github.com/VadimGossip/concoleChat-auth/internal/service"
 )
@@ -9,15 +10,20 @@ import (
 var _ def.UserService = (*service)(nil)
 
 type service struct {
-	userRepository repository.UserRepository
-	auditService   def.AuditService
-	txManager      db.TxManager
+	userRepository   repository.UserRepository
+	userCacheService def.UserCacheService
+	auditService     def.AuditService
+	txManager        db.TxManager
 }
 
-func NewService(userRepository repository.UserRepository, auditService def.AuditService, txManager db.TxManager) *service {
+func NewService(userRepository repository.UserRepository,
+	userCacheService def.UserCacheService,
+	auditService def.AuditService,
+	txManager db.TxManager) *service {
 	return &service{
-		userRepository: userRepository,
-		auditService:   auditService,
-		txManager:      txManager,
+		userRepository:   userRepository,
+		userCacheService: userCacheService,
+		auditService:     auditService,
+		txManager:        txManager,
 	}
 }
