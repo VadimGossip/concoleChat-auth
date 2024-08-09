@@ -1,7 +1,7 @@
 package tests
 
 //не могу понять как мокать TxManager ругается на expected f
-//
+
 //import (
 //	"context"
 //	"fmt"
@@ -21,7 +21,7 @@ package tests
 //
 //func TestCreate(t *testing.T) {
 //	type userRepositoryMockFunc func(mc *minimock.Controller) repository.UserRepository
-//	type txManagerMockFunc func(f func(ctx context.Context) error, mc *minimock.Controller) db.TxManager
+//	type txManagerMockFunc func(f any, mc *minimock.Controller) db.TxManager
 //	type auditServiceMockFunc func(mc *minimock.Controller) service.AuditService
 //	type userCacheServiceMockFunc func(mc *minimock.Controller) service.UserCacheService
 //
@@ -80,7 +80,7 @@ package tests
 //				mock.CreateMock.Expect(ctx, req).Return(user, nil)
 //				return mock
 //			},
-//			txManagerMock: func(f func(ctx context.Context) error, mc *minimock.Controller) db.TxManager {
+//			txManagerMock: func(f any, mc *minimock.Controller) db.TxManager {
 //				mock := repoMocks.NewTxManagerMock(mc)
 //				mock.ReadCommittedMock.Expect(ctx, f).Return(nil)
 //				return mock

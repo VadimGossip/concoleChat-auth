@@ -3,14 +3,15 @@ package tests
 import (
 	"context"
 	"fmt"
-	"github.com/VadimGossip/concoleChat-auth/internal/api/user"
-	"github.com/VadimGossip/concoleChat-auth/internal/model"
+	"testing"
+
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/gojuno/minimock/v3"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"testing"
 
+	"github.com/VadimGossip/concoleChat-auth/internal/api/user"
+	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	"github.com/VadimGossip/concoleChat-auth/internal/service"
 	serviceMocks "github.com/VadimGossip/concoleChat-auth/internal/service/mocks"
 	desc "github.com/VadimGossip/concoleChat-auth/pkg/user_v1"

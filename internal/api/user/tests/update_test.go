@@ -9,28 +9,47 @@ import (
 	"github.com/gojuno/minimock/v3"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/VadimGossip/concoleChat-auth/internal/api/user"
+	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	"github.com/VadimGossip/concoleChat-auth/internal/service"
 	serviceMocks "github.com/VadimGossip/concoleChat-auth/internal/service/mocks"
 	desc "github.com/VadimGossip/concoleChat-auth/pkg/user_v1"
 )
 
-func TestDelete(t *testing.T) {
+func TestUpdate(t *testing.T) {
 	type userServiceMockFunc func(mc *minimock.Controller) service.UserService
 
 	type args struct {
 		ctx context.Context
-		req *desc.DeleteRequest
+		req *desc.UpdateRequest
 	}
 
 	var (
-		ctx        = context.Background()
-		id         = gofakeit.Int64()
+		ctx = context.Background()
+
+		id    = gofakeit.Int64()
+		name  = gofakeit.Name()
+		email = gofakeit.Email()
+		role  = gofakeit.IntRange(1, 2)
+
 		serviceErr = fmt.Errorf("some service error")
 
-		req = &desc.DeleteRequest{
+		descRole = desc.Role(role)
+		req      = &desc.UpdateRequest{
 			Id: id,
+			Info: &desc.UpdateUserInfo{
+				Name:  wrapperspb.String(name),
+				Email: wrapperspb.String(email),
+				Role:  &descRole,
+			},
+		}
+
+		userInfo = &model.UpdateUserInfo{
+			Name:  &name,
+			Email: &email,
+			Role:  desc.Role_name[int32(*req.Info.Role)],
 		}
 
 		res = &emptypb.Empty{}
@@ -53,7 +72,7 @@ func TestDelete(t *testing.T) {
 			err:  nil,
 			userServiceMock: func(mc *minimock.Controller) service.UserService {
 				mock := serviceMocks.NewUserServiceMock(mc)
-				mock.DeleteMock.Expect(ctx, id).Return(nil)
+				mock.UpdateMock.Expect(ctx, id, userInfo).Return(nil)
 				return mock
 			},
 		},
@@ -67,7 +86,7 @@ func TestDelete(t *testing.T) {
 			err:  serviceErr,
 			userServiceMock: func(mc *minimock.Controller) service.UserService {
 				mock := serviceMocks.NewUserServiceMock(mc)
-				mock.DeleteMock.Expect(ctx, id).Return(serviceErr)
+				mock.UpdateMock.Expect(ctx, id, userInfo).Return(serviceErr)
 				return mock
 			},
 		},
@@ -79,7 +98,7 @@ func TestDelete(t *testing.T) {
 			userServiceMock := test.userServiceMock(mc)
 
 			impl := user.NewImplementation(userServiceMock)
-			actualRes, err := impl.Delete(test.args.ctx, test.args.req)
+			actualRes, err := impl.Update(test.args.ctx, test.args.req)
 
 			assert.Equal(t, test.want, actualRes)
 			assert.Equal(t, test.err, err)
