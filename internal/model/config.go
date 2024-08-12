@@ -1,10 +1,12 @@
 package model
 
-type NetServerConfig struct {
+import "time"
+
+type NetServerCfg struct {
 	Port int
 }
 
-type DbCfg struct {
+type PGDbCfg struct {
 	Host     string
 	Port     int
 	Username string
@@ -12,7 +14,24 @@ type DbCfg struct {
 	SSLMode  string
 	Password string
 }
+
+type RedisDbCfg struct {
+	Host            string
+	Port            int
+	Username        string
+	Password        string
+	Db              int
+	ReadTimeoutSec  int
+	WriteTimeoutSec int
+}
+
+type UserCacheCfg struct {
+	Expire time.Duration
+}
+
 type Config struct {
-	AppGrpcServer NetServerConfig
-	Db            DbCfg
+	AppGrpcServer NetServerCfg
+	PgDb          PGDbCfg
+	RedisDb       RedisDbCfg
+	UserCache     UserCacheCfg
 }

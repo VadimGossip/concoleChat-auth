@@ -16,3 +16,9 @@ type UserService interface {
 type AuditService interface {
 	Create(ctx context.Context, audit *model.Audit) error
 }
+
+type UserCacheService interface {
+	Get(ctx context.Context, ID int64) (*model.User, error)
+	Set(ctx context.Context, user *model.User) error
+	Delete(ctx context.Context, ID int64) error
+}

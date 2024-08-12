@@ -13,11 +13,42 @@ func parseConfigFile(configDir string) error {
 }
 
 func setFromEnv(cfg *model.Config) error {
-	return envconfig.Process("db", &cfg.Db)
+	if err := envconfig.Process("pg", &cfg.PgDb); err != nil {
+		return err
+	}
+	cfg.PgDb = model.PGDbCfg{
+		Host:     "localhost",
+		Port:     5432,
+		Username: "postgres",
+		Name:     "auth-db",
+		SSLMode:  "disable",
+		Password: "postgres",
+	}
+
+	err := envconfig.Process("redis", &cfg.RedisDb)
+	if err != nil {
+		return err
+	}
+	cfg.RedisDb = model.RedisDbCfg{
+		Host:            "localhost",
+		Port:            6379,
+		ReadTimeoutSec:  300,
+		WriteTimeoutSec: 300,
+	}
+	return nil
 }
 
 func unmarshal(cfg *model.Config) error {
-	return viper.UnmarshalKey("app_grpc", &cfg.AppGrpcServer)
+	if err := viper.UnmarshalKey("app_grpc", &cfg.AppGrpcServer); err != nil {
+		return err
+	}
+
+	err := viper.UnmarshalKey("user_cache", &cfg.UserCache)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func Init(configDir string) (*model.Config, error) {

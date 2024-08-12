@@ -4,12 +4,21 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 )
 
 func (s *service) Get(ctx context.Context, ID int64) (*model.User, error) {
-	user := &model.User{}
-	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+	user, err := s.userCacheService.Get(ctx, ID)
+	if err != nil {
+		logrus.Infof("User cache service err %s on get user id = %d", err, ID)
+	}
+	if user != nil {
+		return user, nil
+	}
+
+	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		var txErr error
 		user, txErr = s.userRepository.Get(ctx, ID)
 		if txErr != nil {
@@ -28,6 +37,10 @@ func (s *service) Get(ctx context.Context, ID int64) (*model.User, error) {
 
 	if err != nil {
 		return nil, err
+	}
+
+	if err = s.userCacheService.Set(ctx, user); err != nil {
+		logrus.Infof("User cache service err %s on set user = %+v", err, user)
 	}
 
 	return user, nil
