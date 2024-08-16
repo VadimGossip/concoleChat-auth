@@ -16,15 +16,6 @@ func setFromEnv(cfg *model.Config) error {
 	if err := envconfig.Process("pg", &cfg.PgDb); err != nil {
 		return err
 	}
-	cfg.PgDb = model.PGDbCfg{
-		Host:     "localhost",
-		Port:     5432,
-		Username: "postgres",
-		Name:     "auth-db",
-		SSLMode:  "disable",
-		Password: "postgres",
-	}
-
 	err := envconfig.Process("redis", &cfg.RedisDb)
 	if err != nil {
 		return err
