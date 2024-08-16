@@ -3,20 +3,16 @@ package app
 import (
 	"context"
 	"fmt"
-	"github.com/VadimGossip/concoleChat-auth/internal/interceptor"
-	"net"
+	"net/http"
 	"os"
+	"sync"
 	"time"
-
-	"github.com/VadimGossip/platform_common/pkg/closer"
-	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/reflection"
 
 	"github.com/VadimGossip/concoleChat-auth/internal/config"
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
-	desc "github.com/VadimGossip/concoleChat-auth/pkg/user_v1"
+	"github.com/VadimGossip/platform_common/pkg/closer"
+	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
 )
 
 func init() {
@@ -32,6 +28,7 @@ type App struct {
 	appStartedAt    time.Time
 	cfg             *model.Config
 	grpcServer      *grpc.Server
+	httpServer      *http.Server
 }
 
 func NewApp(ctx context.Context, name, configDir string, appStartedAt time.Time) (*App, error) {
@@ -53,6 +50,7 @@ func (a *App) initDeps(ctx context.Context) error {
 		a.initConfig,
 		a.initServiceProvider,
 		a.initGRPCServer,
+		a.initHTTPServer,
 	}
 
 	for _, f := range inits {
@@ -79,40 +77,34 @@ func (a *App) initServiceProvider(_ context.Context) error {
 	return nil
 }
 
-func (a *App) initGRPCServer(ctx context.Context) error {
-	a.grpcServer = grpc.NewServer(
-		grpc.Creds(insecure.NewCredentials()),
-		grpc.UnaryInterceptor(interceptor.ValidateInterceptor),
-	)
-
-	reflection.Register(a.grpcServer)
-
-	desc.RegisterUserV1Server(a.grpcServer, a.serviceProvider.UserImpl(ctx))
-
-	return nil
-}
-
-func (a *App) runGRPCServer() error {
-	logrus.Infof("[grpc/server] Starting on port: %d", a.cfg.AppGrpcServer.Port)
-
-	list, err := net.Listen("tcp", fmt.Sprintf(":%d", a.cfg.AppGrpcServer.Port))
-	if err != nil {
-		return err
-	}
-
-	err = a.grpcServer.Serve(list)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (a *App) Run() error {
 	defer func() {
 		closer.CloseAll()
 		closer.Wait()
 	}()
 
-	return a.runGRPCServer()
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+
+		err := a.runGRPCServer()
+		if err != nil {
+			logrus.Fatalf("failed to run GRPC server: %v", err)
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		err := a.runHTTPServer()
+		if err != nil {
+			logrus.Fatalf("failed to run HTTP server: %v", err)
+		}
+	}()
+
+	wg.Wait()
+
+	return nil
 }

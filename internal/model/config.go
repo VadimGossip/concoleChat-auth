@@ -31,6 +31,7 @@ type UserCacheCfg struct {
 
 type Config struct {
 	AppGrpcServer NetServerCfg
+	AppHttpServer NetServerCfg
 	PgDb          PGDbCfg
 	RedisDb       RedisDbCfg
 	UserCache     UserCacheCfg
