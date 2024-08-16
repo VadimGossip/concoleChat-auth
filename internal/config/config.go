@@ -21,6 +21,10 @@ func setFromEnv(cfg *model.Config) error {
 		return err
 	}
 
+	if err := envconfig.Process("app_swagger", &cfg.AppSwaggerServer); err != nil {
+		return err
+	}
+
 	if err := envconfig.Process("pg", &cfg.PgDb); err != nil {
 		return err
 	}
@@ -37,7 +41,12 @@ func unmarshal(cfg *model.Config) error {
 	if err := viper.UnmarshalKey("app_grpc", &cfg.AppGrpcServer); err != nil {
 		return err
 	}
+
 	if err := viper.UnmarshalKey("app_http", &cfg.AppHttpServer); err != nil {
+		return err
+	}
+
+	if err := viper.UnmarshalKey("app_swagger", &cfg.AppSwaggerServer); err != nil {
 		return err
 	}
 

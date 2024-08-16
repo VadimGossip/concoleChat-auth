@@ -8,11 +8,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/VadimGossip/concoleChat-auth/internal/config"
-	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	"github.com/VadimGossip/platform_common/pkg/closer"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+
+	"github.com/VadimGossip/concoleChat-auth/internal/config"
+	"github.com/VadimGossip/concoleChat-auth/internal/model"
+	//import for init
+	_ "github.com/VadimGossip/concoleChat-auth/statik"
 )
 
 func init() {
@@ -29,6 +32,7 @@ type App struct {
 	cfg             *model.Config
 	grpcServer      *grpc.Server
 	httpServer      *http.Server
+	swaggerServer   *http.Server
 }
 
 func NewApp(ctx context.Context, name, configDir string, appStartedAt time.Time) (*App, error) {
@@ -51,6 +55,7 @@ func (a *App) initDeps(ctx context.Context) error {
 		a.initServiceProvider,
 		a.initGRPCServer,
 		a.initHTTPServer,
+		a.initSwaggerServer,
 	}
 
 	for _, f := range inits {
@@ -84,7 +89,7 @@ func (a *App) Run() error {
 	}()
 
 	wg := sync.WaitGroup{}
-	wg.Add(2)
+	wg.Add(3)
 
 	go func() {
 		defer wg.Done()
@@ -101,6 +106,15 @@ func (a *App) Run() error {
 		err := a.runHTTPServer()
 		if err != nil {
 			logrus.Fatalf("failed to run HTTP server: %v", err)
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		err := a.runSwaggerServer()
+		if err != nil {
+			logrus.Fatalf("failed to run Swagger server: %v", err)
 		}
 	}()
 

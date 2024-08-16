@@ -42,6 +42,6 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 }
 
 func (a *App) runHTTPServer() error {
-	logrus.Infof("[%s] HTTP server is running on %s", a.name, a.httpServer.Addr)
+	logrus.Infof("[%s] HTTP server is running on: %s", a.name, a.httpServer.Addr)
 	return a.httpServer.ListenAndServe()
 }

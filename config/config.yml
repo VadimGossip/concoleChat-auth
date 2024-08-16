@@ -4,5 +4,8 @@ app_grpc:
 app_http:
   port: 8080
 
+app_swagger:
+  port: 8090
+
 user_cache:
   expire: 300s #user cache value expire

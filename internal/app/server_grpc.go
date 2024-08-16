@@ -32,7 +32,7 @@ func (a *App) runGRPCServer() error {
 	if err != nil {
 		return err
 	}
-	logrus.Infof("[%s] GRPC server is running on port: %d", a.name, a.cfg.AppGrpcServer.Port)
+	logrus.Infof("[%s] GRPC server is running on: %d", a.name, a.cfg.AppGrpcServer.Port)
 
 	err = a.grpcServer.Serve(list)
 	if err != nil {

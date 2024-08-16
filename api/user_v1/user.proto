@@ -7,10 +7,29 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
 import "validate/validate.proto";
 import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package = "github.com/VadimGossip/concoleChat-auth/pkg/user_v1;user_v1";
 
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Console chat auth"
+    version: "1.0.0"
+    contact: {
+      name: "Vadim Voronin"
+      email: "vadvoronin@gmail.com"
+    };
+  };
+
+  host: "localhost:8080",
+  schemes: HTTP,
+  schemes: HTTPS,
+  consumes: "application/json",
+  produces: "application/json",
+};
+
 service UserV1 {
+  //Method for user create
   rpc Create(CreateRequest) returns (CreateResponse) {
     option (google.api.http) = {
       post: "/user/v1/create"
@@ -18,12 +37,14 @@ service UserV1 {
     };
   }
 
+  //Method for user get
   rpc Get(GetRequest) returns (GetResponse) {
     option (google.api.http) = {
       get: "/user/v1"
     };
   }
 
+  //Method for user update
   rpc Update(UpdateRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       patch: "/user/v1"
@@ -31,6 +52,7 @@ service UserV1 {
     };
   }
 
+  //Method for user delete
   rpc Delete(DeleteRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/user/v1"
