@@ -5,6 +5,7 @@ package user_v1;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
+import "validate/validate.proto";
 
 option go_package = "github.com/VadimGossip/concoleChat-auth/pkg/user_v1;user_v1";
 
@@ -22,15 +23,15 @@ enum Role {
 }
 
 message UserInfo {
-  string name = 1;
-  string email = 2;
-  string password = 3;
-  string password_confirm = 4;
-  Role role = 5;
+  string name = 1 [(validate.rules).string = {min_len: 1, max_len: 100}];
+  string email = 2 [(validate.rules).string = {email: true}];
+  string password = 3 [(validate.rules).string = {min_len: 8}];
+  string password_confirm = 4 [(validate.rules).string = {min_len: 8}];
+  Role role = 5 [(validate.rules).enum = {defined_only: true}];
 }
 
 message User {
-  int64 id = 1;
+  int64 id = 1 [(validate.rules).int64.gt = 0];
   UserInfo info = 2;
   google.protobuf.Timestamp created_at = 3;
   google.protobuf.Timestamp updated_at = 4;
@@ -51,7 +52,7 @@ message CreateResponse {
 }
 
 message GetRequest {
-  int64 id = 1;
+  int64 id = 1 [(validate.rules).int64.gt = 0];
 }
 
 message GetResponse {
@@ -59,10 +60,10 @@ message GetResponse {
 }
 
 message UpdateRequest {
-  int64 id = 1;
+  int64 id = 1 [(validate.rules).int64.gt = 0];
   UpdateUserInfo info = 2;
 }
 
 message DeleteRequest {
-  int64 id = 1;
+  int64 id = 1 [(validate.rules).int64.gt = 0];
 }
