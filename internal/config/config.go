@@ -20,12 +20,6 @@ func setFromEnv(cfg *model.Config) error {
 	if err != nil {
 		return err
 	}
-	cfg.RedisDb = model.RedisDbCfg{
-		Host:            "localhost",
-		Port:            6379,
-		ReadTimeoutSec:  300,
-		WriteTimeoutSec: 300,
-	}
 	return nil
 }
 
