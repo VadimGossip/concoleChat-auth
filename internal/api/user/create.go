@@ -19,8 +19,8 @@ func (i *Implementation) Create(ctx context.Context, req *desc.CreateRequest) (*
 	}, nil
 }
 
-func (i *Implementation) CreateAsync(ctx context.Context, req *desc.CreateRequest) (*emptypb.Empty, error) {
-	err := i.userAsyncService.ProduceCreate(ctx, converter.ToUserInfoFromDesc(req.GetInfo()))
+func (i *Implementation) CreateAsync(_ context.Context, req *desc.CreateAsyncRequest) (*emptypb.Empty, error) {
+	err := i.userAsyncService.ProduceCreate(converter.ToUserInfoFromDesc(req.GetInfo()))
 	if err != nil {
 		return nil, err
 	}

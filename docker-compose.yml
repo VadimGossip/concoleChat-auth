@@ -27,39 +27,41 @@ services:
       - auth-network
     volumes:
       - redis_volume:/var/lib/redis/data
-#  auth:
-#    image: auth
-#    container_name: auth
-#    environment:
-#     - APP_GRPC_PORT=8086
-#     - APP_HTTP_PORT=8080
-#     - APP_SWAGGER_PORT=8090
-#     - PG_HOST=pg-auth
-#     - PG_PORT=5432
-#     - PG_USERNAME=postgres
-#     - PG_NAME=auth-db
-#     - PG_SSLMODE=disable
-#     - PG_PASSWORD=postgres
-#     - REDIS_HOST=redis-auth
-#     - REDIS_PORT=6379
-#     - REDIS_DB=0
-#     - REDIS_READ_TIMEOUT_SEC = 300
-#     - REDIS_READ_WRITE_SEC = 300
-#     - USER_CACHE_EXPIRE_SEC = 300
-#     - USER_KAFKA_TOPIC = user
-#    ports:
-#      - 8080:8080
-#      - 8086:8086
-#      - 8090:8090
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    restart: always
-#    networks:
-#     - auth-network
-#    depends_on:
-#      - pg-auth
-#      - redis-auth
+  auth:
+    image: auth
+    container_name: auth
+    environment:
+     - APP_GRPC_PORT=8086
+     - APP_HTTP_PORT=8080
+     - APP_SWAGGER_PORT=8090
+     - PG_HOST=pg-auth
+     - PG_PORT=5432
+     - PG_USERNAME=postgres
+     - PG_NAME=auth-db
+     - PG_SSLMODE=disable
+     - PG_PASSWORD=postgres
+     - REDIS_HOST=redis-auth
+     - REDIS_PORT=6379
+     - REDIS_DB=0
+     - REDIS_READ_TIMEOUT_SEC = 300
+     - REDIS_READ_WRITE_SEC = 300
+     - USER_CACHE_EXPIRE_SEC = 300
+     - USER_KAFKA_TOPIC = user
+     - KAFKA_BROKERS=localhost:9092, localhost:9093, localhost:9094
+     - KAFKA_GROUP_ID=auth
+    ports:
+      - 8080:8080
+      - 8086:8086
+      - 8090:8090
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    networks:
+     - auth-network
+    depends_on:
+      - pg-auth
+      - redis-auth      -
   migrator:
     build:
       context: .

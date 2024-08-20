@@ -356,7 +356,7 @@ func (s *serviceProvider) UserConsumerService(ctx context.Context) consumerServi
 
 func (s *serviceProvider) UserImpl(ctx context.Context) *user.Implementation {
 	if s.userImpl == nil {
-		s.userImpl = user.NewImplementation(s.UserService(ctx))
+		s.userImpl = user.NewImplementation(s.UserService(ctx), s.UserProducerService())
 	}
 
 	return s.userImpl
