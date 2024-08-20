@@ -2,18 +2,19 @@ package app
 
 import (
 	"context"
-	"fmt"
+	"github.com/joho/godotenv"
+	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/VadimGossip/platform_common/pkg/closer"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
-	"github.com/VadimGossip/concoleChat-auth/internal/config"
-	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	//import for init
 	_ "github.com/VadimGossip/concoleChat-auth/statik"
 )
@@ -29,7 +30,6 @@ type App struct {
 	name            string
 	configDir       string
 	appStartedAt    time.Time
-	cfg             *model.Config
 	grpcServer      *grpc.Server
 	httpServer      *http.Server
 	swaggerServer   *http.Server
@@ -67,36 +67,35 @@ func (a *App) initDeps(ctx context.Context) error {
 	return nil
 }
 
-func (a *App) initConfig(_ context.Context) error {
-	cfg, err := config.Init(a.configDir)
-	if err != nil {
-		return fmt.Errorf("[%s] config initialization error: %s", a.name, err)
-	}
-	a.cfg = cfg
-	logrus.Infof("[%s] got config: [%+v]", a.name, *a.cfg)
-	return nil
-}
-
 func (a *App) initServiceProvider(_ context.Context) error {
-	a.serviceProvider = newServiceProvider(a.cfg)
+	a.serviceProvider = newServiceProvider()
 	return nil
 }
 
-func (a *App) Run() error {
+func (a *App) initConfig(_ context.Context) error {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	return nil
+}
+
+func (a *App) Run(ctx context.Context) error {
 	defer func() {
 		closer.CloseAll()
 		closer.Wait()
 	}()
+	ctx, cancel := context.WithCancel(ctx)
 
-	wg := sync.WaitGroup{}
-	wg.Add(3)
+	wg := &sync.WaitGroup{}
+	wg.Add(4)
 
 	go func() {
 		defer wg.Done()
 
 		err := a.runGRPCServer()
 		if err != nil {
-			logrus.Fatalf("failed to run GRPC server: %v", err)
+			logrus.Fatalf("[%s] failed to run GRPC server: %v", a.name, err)
 		}
 	}()
 
@@ -105,7 +104,7 @@ func (a *App) Run() error {
 
 		err := a.runHTTPServer()
 		if err != nil {
-			logrus.Fatalf("failed to run HTTP server: %v", err)
+			logrus.Fatalf("[%s] failed to run HTTP server: %v", a.name, err)
 		}
 	}()
 
@@ -114,11 +113,38 @@ func (a *App) Run() error {
 
 		err := a.runSwaggerServer()
 		if err != nil {
-			logrus.Fatalf("failed to run Swagger server: %v", err)
+			logrus.Fatalf("[%s] failed to run Swagger server: %v", a.name, err)
 		}
 	}()
 
-	wg.Wait()
+	go func() {
+		defer wg.Done()
+		err := a.serviceProvider.userConsumerService.RunConsumer(ctx)
+		if err != nil {
+			logrus.Fatalf("[%s] failed to run consumer: %s", a.name, err)
+		}
+	}()
 
+	gracefulShutdown(ctx, cancel, wg)
 	return nil
+}
+
+func gracefulShutdown(ctx context.Context, cancel context.CancelFunc, wg *sync.WaitGroup) {
+	select {
+	case <-ctx.Done():
+		logrus.Info("terminating: context cancelled")
+	case c := <-waitSignal():
+		logrus.Infof("terminating: got signal: [%s]", c)
+	}
+
+	cancel()
+	if wg != nil {
+		wg.Wait()
+	}
+}
+
+func waitSignal() chan os.Signal {
+	sigterm := make(chan os.Signal, 1)
+	signal.Notify(sigterm, syscall.SIGINT, syscall.SIGTERM)
+	return sigterm
 }
