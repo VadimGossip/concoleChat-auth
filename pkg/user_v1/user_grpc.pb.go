@@ -25,6 +25,8 @@ const _ = grpc.SupportPackageIsVersion7
 type UserV1Client interface {
 	// Method for user create
 	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
+	// Method for user create async
+	CreateAsync(ctx context.Context, in *CreateAsyncRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Method for user get
 	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error)
 	// Method for user update
@@ -44,6 +46,15 @@ func NewUserV1Client(cc grpc.ClientConnInterface) UserV1Client {
 func (c *userV1Client) Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error) {
 	out := new(CreateResponse)
 	err := c.cc.Invoke(ctx, "/user_v1.UserV1/Create", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userV1Client) CreateAsync(ctx context.Context, in *CreateAsyncRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user_v1.UserV1/CreateAsync", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -83,6 +94,8 @@ func (c *userV1Client) Delete(ctx context.Context, in *DeleteRequest, opts ...gr
 type UserV1Server interface {
 	// Method for user create
 	Create(context.Context, *CreateRequest) (*CreateResponse, error)
+	// Method for user create async
+	CreateAsync(context.Context, *CreateAsyncRequest) (*emptypb.Empty, error)
 	// Method for user get
 	Get(context.Context, *GetRequest) (*GetResponse, error)
 	// Method for user update
@@ -98,6 +111,9 @@ type UnimplementedUserV1Server struct {
 
 func (UnimplementedUserV1Server) Create(context.Context, *CreateRequest) (*CreateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (UnimplementedUserV1Server) CreateAsync(context.Context, *CreateAsyncRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateAsync not implemented")
 }
 func (UnimplementedUserV1Server) Get(context.Context, *GetRequest) (*GetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
@@ -135,6 +151,24 @@ func _UserV1_Create_Handler(srv interface{}, ctx context.Context, dec func(inter
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserV1Server).Create(ctx, req.(*CreateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserV1_CreateAsync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateAsyncRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserV1Server).CreateAsync(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user_v1.UserV1/CreateAsync",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserV1Server).CreateAsync(ctx, req.(*CreateAsyncRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -203,6 +237,10 @@ var UserV1_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Create",
 			Handler:    _UserV1_Create_Handler,
+		},
+		{
+			MethodName: "CreateAsync",
+			Handler:    _UserV1_CreateAsync_Handler,
 		},
 		{
 			MethodName: "Get",
