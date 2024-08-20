@@ -47,7 +47,7 @@ services:
      - REDIS_WRITE_TIMEOUT_SEC=300
      - USER_CACHE_EXPIRE_SEC=300
      - USER_KAFKA_TOPIC=user
-     - KAFKA_BROKERS=kafka1:9092, kafka2:9093, kafka3:9094
+     - KAFKA_BROKERS=kafka1:29092,kafka2:29093,kafka3:29094
      - KAFKA_GROUP_ID=auth
     ports:
       - 8080:8080
