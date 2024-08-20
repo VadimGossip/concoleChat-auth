@@ -2,11 +2,12 @@ package service
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -20,7 +21,7 @@ type userCacheConfig struct {
 func (cfg *userCacheConfig) setFromEnv() error {
 	expireStr := os.Getenv(userCacheExpireSec)
 	if len(expireStr) == 0 {
-		return fmt.Errorf("userCacheConfig expire found")
+		return fmt.Errorf("userCacheConfig expire not found")
 	}
 
 	expireSec, err := strconv.ParseInt(expireStr, 10, 64)

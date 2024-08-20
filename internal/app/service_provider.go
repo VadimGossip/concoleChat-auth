@@ -21,6 +21,7 @@ import (
 
 	"github.com/VadimGossip/concoleChat-auth/internal/api/user"
 	kafkaConsumer "github.com/VadimGossip/concoleChat-auth/internal/client/kafka/consumer"
+	kafkaProducer "github.com/VadimGossip/concoleChat-auth/internal/client/kafka/producer"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository"
 	auditRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/audit"
 	userRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/user/pg"
@@ -29,18 +30,22 @@ import (
 	auditService "github.com/VadimGossip/concoleChat-auth/internal/service/audit"
 	consumerService "github.com/VadimGossip/concoleChat-auth/internal/service/consumer"
 	userConsumerService "github.com/VadimGossip/concoleChat-auth/internal/service/consumer/user"
+	producerService "github.com/VadimGossip/concoleChat-auth/internal/service/producer"
+	userProducerService "github.com/VadimGossip/concoleChat-auth/internal/service/producer/user"
 	userService "github.com/VadimGossip/concoleChat-auth/internal/service/user"
 	userCacheService "github.com/VadimGossip/concoleChat-auth/internal/service/usercache"
 )
 
 type serviceProvider struct {
-	grpcConfig          config.GRPCConfig
-	httpConfig          config.HTTPConfig
-	swaggerConfig       config.SwaggerConfig
-	pgConfig            config.PgConfig
-	redisConfig         config.RedisConfig
-	userCacheConfig     config.UserCacheConfig
-	kafkaConsumerConfig config.KafkaConsumerConfig
+	grpcConfig             config.GRPCConfig
+	httpConfig             config.HTTPConfig
+	swaggerConfig          config.SwaggerConfig
+	pgConfig               config.PgConfig
+	redisConfig            config.RedisConfig
+	userKafkaServiceConfig config.UserKafkaServiceConfig
+	userCacheConfig        config.UserCacheConfig
+	kafkaProducerConfig    config.KafkaProducerConfig
+	kafkaConsumerConfig    config.KafkaConsumerConfig
 
 	pgDbClient    postgres.Client
 	txManager     postgres.TxManager
@@ -53,9 +58,13 @@ type serviceProvider struct {
 	consumerGroupHandler *kafkaConsumer.GroupHandler
 	consumer             kafka.Consumer
 
+	saramaSyncProducer sarama.SyncProducer
+	producer           kafka.Producer
+
 	auditService        service.AuditService
 	userCacheService    service.UserCacheService
 	userService         service.UserService
+	userProducerService producerService.UserProducerService
 	userConsumerService consumerService.UserConsumerService
 
 	userImpl *user.Implementation
@@ -130,6 +139,19 @@ func (s *serviceProvider) RedisConfig() config.RedisConfig {
 	return s.redisConfig
 }
 
+func (s *serviceProvider) UserKafkaServiceConfig() config.UserKafkaServiceConfig {
+	if s.userKafkaServiceConfig == nil {
+		cfg, err := service_cfg.NewUserKafkaServiceConfig()
+		if err != nil {
+			log.Fatalf("failed to get userKafkaServiceConfig: %s", err)
+		}
+
+		s.userKafkaServiceConfig = cfg
+	}
+
+	return s.userKafkaServiceConfig
+}
+
 func (s *serviceProvider) UserCacheConfig() config.UserCacheConfig {
 	if s.userCacheConfig == nil {
 		cfg, err := service_cfg.NewUserCacheConfig()
@@ -141,6 +163,19 @@ func (s *serviceProvider) UserCacheConfig() config.UserCacheConfig {
 	}
 
 	return s.userCacheConfig
+}
+
+func (s *serviceProvider) KafkaProducerConfig() config.KafkaProducerConfig {
+	if s.kafkaProducerConfig == nil {
+		cfg, err := kafka_cfg.NewKafkaProducerConfig()
+		if err != nil {
+			log.Fatalf("failed to get kafkaProducerConfig: %s", err)
+		}
+
+		s.kafkaProducerConfig = cfg
+	}
+
+	return s.kafkaProducerConfig
 }
 
 func (s *serviceProvider) KafkaConsumerConfig() config.KafkaConsumerConfig {
@@ -237,6 +272,28 @@ func (s *serviceProvider) UserRepository(ctx context.Context) repository.UserRep
 	}
 	return s.userRepo
 }
+
+func (s *serviceProvider) SaramaSyncProducer() sarama.SyncProducer {
+	if s.saramaSyncProducer == nil {
+		producer, err := sarama.NewSyncProducer(s.KafkaProducerConfig().Brokers(), s.kafkaProducerConfig.Config())
+		if err != nil {
+			log.Fatalf("failed to create sarama sync producer: %v", err)
+		}
+
+		s.saramaSyncProducer = producer
+	}
+
+	return s.saramaSyncProducer
+}
+
+func (s *serviceProvider) Producer() kafka.Producer {
+	if s.producer == nil {
+		s.producer = kafkaProducer.NewProducer(s.SaramaSyncProducer())
+	}
+
+	return s.producer
+}
+
 func (s *serviceProvider) ConsumerGroup() sarama.ConsumerGroup {
 	if s.consumerGroup == nil {
 		consumerGroup, err := sarama.NewConsumerGroup(
@@ -281,9 +338,17 @@ func (s *serviceProvider) UserService(ctx context.Context) service.UserService {
 	return s.userService
 }
 
+func (s *serviceProvider) UserProducerService() producerService.UserProducerService {
+	if s.userProducerService == nil {
+		s.userProducerService = userProducerService.NewService(s.UserKafkaServiceConfig(), s.Producer())
+	}
+
+	return s.userProducerService
+}
+
 func (s *serviceProvider) UserConsumerService(ctx context.Context) consumerService.UserConsumerService {
 	if s.userConsumerService == nil {
-		s.userConsumerService = userConsumerService.NewService("test_topic", s.Consumer(), s.UserService(ctx))
+		s.userConsumerService = userConsumerService.NewService(s.UserKafkaServiceConfig(), s.Consumer(), s.UserService(ctx))
 	}
 
 	return s.userConsumerService

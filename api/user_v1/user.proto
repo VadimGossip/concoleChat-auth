@@ -37,6 +37,14 @@ service UserV1 {
     };
   }
 
+  //Method for user create async
+  rpc CreateAsync(CreateAsyncRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/user/v1/create_async"
+      body: "*"
+    };
+  }
+
   //Method for user get
   rpc Get(GetRequest) returns (GetResponse) {
     option (google.api.http) = {
@@ -93,6 +101,10 @@ message CreateRequest {
 
 message CreateResponse {
   int64 id = 1;
+}
+
+message CreateAsyncRequest {
+  UserInfo info = 1;
 }
 
 message GetRequest {

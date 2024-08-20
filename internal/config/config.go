@@ -34,8 +34,17 @@ type UserCacheConfig interface {
 	Expire() time.Duration
 }
 
+type UserKafkaServiceConfig interface {
+	UserTopic() string
+}
+
 type KafkaConsumerConfig interface {
 	Brokers() []string
 	GroupID() string
+	Config() *sarama.Config
+}
+
+type KafkaProducerConfig interface {
+	Brokers() []string
 	Config() *sarama.Config
 }

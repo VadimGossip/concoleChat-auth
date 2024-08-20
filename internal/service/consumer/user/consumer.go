@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"github.com/VadimGossip/concoleChat-auth/internal/client/kafka"
+	"github.com/VadimGossip/concoleChat-auth/internal/config"
 	defService "github.com/VadimGossip/concoleChat-auth/internal/service"
 	def "github.com/VadimGossip/concoleChat-auth/internal/service/consumer"
 )
@@ -10,20 +11,20 @@ import (
 var _ def.UserConsumerService = (*service)(nil)
 
 type service struct {
-	topic       string
-	consumer    kafka.Consumer
-	userService defService.UserService
+	kafkaServiceConfig config.UserKafkaServiceConfig
+	consumer           kafka.Consumer
+	userService        defService.UserService
 }
 
 func NewService(
-	topic string,
+	kafkaServiceConfig config.UserKafkaServiceConfig,
 	consumer kafka.Consumer,
 	userService defService.UserService,
 ) *service {
 	return &service{
-		topic:       topic,
-		consumer:    consumer,
-		userService: userService,
+		kafkaServiceConfig: kafkaServiceConfig,
+		consumer:           consumer,
+		userService:        userService,
 	}
 }
 
@@ -46,7 +47,7 @@ func (s *service) run(ctx context.Context) <-chan error {
 	go func() {
 		defer close(errChan)
 
-		errChan <- s.consumer.Consume(ctx, s.topic, s.CreateUserHandler)
+		errChan <- s.consumer.Consume(ctx, s.kafkaServiceConfig.UserTopic(), s.CreateUserHandler)
 	}()
 
 	return errChan

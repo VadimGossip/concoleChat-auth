@@ -2,15 +2,16 @@ package kafka
 
 import (
 	"fmt"
-	"github.com/IBM/sarama"
-	"github.com/sirupsen/logrus"
 	"os"
 	"strings"
+
+	"github.com/IBM/sarama"
+	"github.com/sirupsen/logrus"
 )
 
 const (
-	brokersEnvName = "KAFKA_BROKERS"
-	groupIDEnvName = "KAFKA_GROUP_ID"
+	consumerBrokersEnvName = "KAFKA_BROKERS"
+	consumerGroupIDEnvName = "KAFKA_GROUP_ID"
 )
 
 type kafkaConsumerConfig struct {
@@ -19,16 +20,16 @@ type kafkaConsumerConfig struct {
 }
 
 func (cfg *kafkaConsumerConfig) setFromEnv() error {
-	brokersStr := os.Getenv(brokersEnvName)
+	brokersStr := os.Getenv(consumerBrokersEnvName)
 	if len(brokersStr) == 0 {
 		return fmt.Errorf("kafkaConsumerConfig kafka brokers address not found")
 	}
 
 	cfg.brokers = strings.Split(brokersStr, ",")
 
-	cfg.groupID = os.Getenv(groupIDEnvName)
+	cfg.groupID = os.Getenv(consumerGroupIDEnvName)
 	if len(cfg.groupID) == 0 {
-		return fmt.Errorf("kafkaConsumerConfig kafk group id not found")
+		return fmt.Errorf("kafkaConsumerConfig kafka group id not found")
 	}
 
 	return nil

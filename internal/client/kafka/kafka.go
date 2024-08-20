@@ -13,6 +13,6 @@ type Consumer interface {
 }
 
 type Producer interface {
-	Produce(ctx context.Context, msg *sarama.ProducerMessage) error
+	Produce(msg *sarama.ProducerMessage) error
 	Close() error
 }
