@@ -21,10 +21,6 @@ type httpConfig struct {
 func (cfg *httpConfig) setFromEnv() error {
 	var err error
 	cfg.host = os.Getenv(httpHostEnvName)
-	if len(cfg.host) == 0 {
-		return fmt.Errorf("httpConfig host not found")
-	}
-
 	portStr := os.Getenv(httpPortEnvName)
 	if len(portStr) == 0 {
 		return fmt.Errorf("httpConfig port not found")

@@ -43,11 +43,11 @@ services:
      - REDIS_HOST=redis-auth
      - REDIS_PORT=6379
      - REDIS_DB=0
-     - REDIS_READ_TIMEOUT_SEC = 300
-     - REDIS_READ_WRITE_SEC = 300
-     - USER_CACHE_EXPIRE_SEC = 300
-     - USER_KAFKA_TOPIC = user
-     - KAFKA_BROKERS=localhost:9092, localhost:9093, localhost:9094
+     - REDIS_READ_TIMEOUT_SEC=300
+     - REDIS_WRITE_TIMEOUT_SEC=300
+     - USER_CACHE_EXPIRE_SEC=300
+     - USER_KAFKA_TOPIC=user
+     - KAFKA_BROKERS=kafka1:9092, kafka2:9093, kafka3:9094
      - KAFKA_GROUP_ID=auth
     ports:
       - 8080:8080
@@ -61,7 +61,7 @@ services:
      - auth-network
     depends_on:
       - pg-auth
-      - redis-auth      -
+      - redis-auth
   migrator:
     build:
       context: .

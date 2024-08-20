@@ -21,10 +21,6 @@ type swaggerConfig struct {
 func (cfg *swaggerConfig) setFromEnv() error {
 	var err error
 	cfg.host = os.Getenv(swaggerHostEnvName)
-	if len(cfg.host) == 0 {
-		return fmt.Errorf("swaggerConfig host not found")
-	}
-
 	portStr := os.Getenv(swaggerPortEnvName)
 	if len(portStr) == 0 {
 		return fmt.Errorf("swaggerConfig port not found")

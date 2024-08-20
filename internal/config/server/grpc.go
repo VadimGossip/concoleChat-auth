@@ -21,10 +21,6 @@ type grpcConfig struct {
 func (cfg *grpcConfig) setFromEnv() error {
 	var err error
 	cfg.host = os.Getenv(grpcHostEnvName)
-	if len(cfg.host) == 0 {
-		return fmt.Errorf("grpcConfig host not found")
-	}
-
 	portStr := os.Getenv(grpcPortEnvName)
 	if len(portStr) == 0 {
 		return fmt.Errorf("grpcConfig port not found")
