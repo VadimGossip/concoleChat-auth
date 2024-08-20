@@ -2,12 +2,15 @@ package server
 
 import (
 	"fmt"
-	"github.com/kelseyhightower/envconfig"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"os"
+	"strconv"
 )
 
 const (
-	swaggerEnvPrefix = "app_swagger"
+	swaggerHostEnvName = "APP_SWAGGER_HOST"
+	swaggerPortEnvName = "APP_SWAGGER_PORT"
 )
 
 type swaggerConfig struct {
@@ -16,16 +19,31 @@ type swaggerConfig struct {
 }
 
 func (cfg *swaggerConfig) setFromEnv() error {
-	return envconfig.Process(swaggerEnvPrefix, cfg)
+	var err error
+	cfg.host = os.Getenv(swaggerHostEnvName)
+	if len(cfg.host) == 0 {
+		return fmt.Errorf("swaggerConfig host not found")
+	}
+
+	portStr := os.Getenv(swaggerPortEnvName)
+	if len(portStr) == 0 {
+		return fmt.Errorf("swaggerConfig port not found")
+	}
+
+	cfg.port, err = strconv.Atoi(portStr)
+	if err != nil {
+		return errors.Wrap(err, "failed to parse swaggerConfig port")
+	}
+	return nil
 }
 
 func NewSwaggerConfig() (*swaggerConfig, error) {
 	cfg := &swaggerConfig{}
 	if err := cfg.setFromEnv(); err != nil {
-		return nil, fmt.Errorf("swagger server config set from env err: %s", err)
+		return nil, fmt.Errorf("swaggerConfig set from env err: %s", err)
 	}
 
-	logrus.Infof("swagger server config: [%+v]", *cfg)
+	logrus.Infof("swaggerConfig: [%+v]", *cfg)
 	return cfg, nil
 }
 

@@ -2,12 +2,15 @@ package server
 
 import (
 	"fmt"
-	"github.com/kelseyhightower/envconfig"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"os"
+	"strconv"
 )
 
 const (
-	httpEnvPrefix = "app_http"
+	httpHostEnvName = "APP_HTTP_HOST"
+	httpPortEnvName = "APP_HTTP_PORT"
 )
 
 type httpConfig struct {
@@ -16,16 +19,31 @@ type httpConfig struct {
 }
 
 func (cfg *httpConfig) setFromEnv() error {
-	return envconfig.Process(httpEnvPrefix, cfg)
+	var err error
+	cfg.host = os.Getenv(httpHostEnvName)
+	if len(cfg.host) == 0 {
+		return fmt.Errorf("httpConfig host not found")
+	}
+
+	portStr := os.Getenv(httpPortEnvName)
+	if len(portStr) == 0 {
+		return fmt.Errorf("httpConfig port not found")
+	}
+
+	cfg.port, err = strconv.Atoi(portStr)
+	if err != nil {
+		return errors.Wrap(err, "failed to parse httpConfig port")
+	}
+	return nil
 }
 
 func NewHTTPConfig() (*httpConfig, error) {
 	cfg := &httpConfig{}
 	if err := cfg.setFromEnv(); err != nil {
-		return nil, fmt.Errorf("http server config set from env err: %s", err)
+		return nil, fmt.Errorf("httpConfig set from env err: %s", err)
 	}
 
-	logrus.Infof("http server config: [%+v]", *cfg)
+	logrus.Infof("httpConfig: [%+v]", *cfg)
 	return cfg, nil
 }
 

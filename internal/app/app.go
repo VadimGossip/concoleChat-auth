@@ -119,7 +119,7 @@ func (a *App) Run(ctx context.Context) error {
 
 	go func() {
 		defer wg.Done()
-		err := a.serviceProvider.userConsumerService.RunConsumer(ctx)
+		err := a.serviceProvider.UserConsumerService(ctx).RunConsumer(ctx)
 		if err != nil {
 			logrus.Fatalf("[%s] failed to run consumer: %s", a.name, err)
 		}

@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"github.com/sirupsen/logrus"
 	"net"
 
@@ -28,11 +27,11 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 }
 
 func (a *App) runGRPCServer() error {
-	list, err := net.Listen("tcp", fmt.Sprintf(":%d", a.cfg.AppGrpcServer.Port))
+	list, err := net.Listen("tcp", a.serviceProvider.GRPCConfig().Address())
 	if err != nil {
 		return err
 	}
-	logrus.Infof("[%s] GRPC server is running on: %d", a.name, a.cfg.AppGrpcServer.Port)
+	logrus.Infof("[%s] GRPC server is running on: %s", a.name, a.serviceProvider.GRPCConfig().Address())
 
 	err = a.grpcServer.Serve(list)
 	if err != nil {

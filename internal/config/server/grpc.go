@@ -2,12 +2,15 @@ package server
 
 import (
 	"fmt"
-	"github.com/kelseyhightower/envconfig"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"os"
+	"strconv"
 )
 
 const (
-	grpcEnvPrefix = "app_grpc"
+	grpcHostEnvName = "APP_GRPC_HOST"
+	grpcPortEnvName = "APP_GRPC_PORT"
 )
 
 type grpcConfig struct {
@@ -16,16 +19,31 @@ type grpcConfig struct {
 }
 
 func (cfg *grpcConfig) setFromEnv() error {
-	return envconfig.Process(grpcEnvPrefix, cfg)
+	var err error
+	cfg.host = os.Getenv(grpcHostEnvName)
+	if len(cfg.host) == 0 {
+		return fmt.Errorf("grpcConfig host not found")
+	}
+
+	portStr := os.Getenv(grpcPortEnvName)
+	if len(portStr) == 0 {
+		return fmt.Errorf("grpcConfig port not found")
+	}
+
+	cfg.port, err = strconv.Atoi(portStr)
+	if err != nil {
+		return errors.Wrap(err, "failed to parse grpcConfig port")
+	}
+	return nil
 }
 
 func NewGRPCConfig() (*grpcConfig, error) {
 	cfg := &grpcConfig{}
 	if err := cfg.setFromEnv(); err != nil {
-		return nil, fmt.Errorf("grpc server config set from env err: %s", err)
+		return nil, fmt.Errorf("grpcConfig set from env err: %s", err)
 	}
 
-	logrus.Infof("grpc server config: [%+v]", *cfg)
+	logrus.Infof("grpcConfig: [%+v]", *cfg)
 	return cfg, nil
 }
 

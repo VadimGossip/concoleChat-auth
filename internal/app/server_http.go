@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -21,7 +20,7 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
 
-	err := desc.RegisterUserV1HandlerFromEndpoint(ctx, mux, fmt.Sprintf(":%d", a.cfg.AppGrpcServer.Port), opts)
+	err := desc.RegisterUserV1HandlerFromEndpoint(ctx, mux, a.serviceProvider.GRPCConfig().Address(), opts)
 	if err != nil {
 		return err
 	}
@@ -34,7 +33,7 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 	})
 
 	a.httpServer = &http.Server{
-		Addr:    fmt.Sprintf(":%d", a.cfg.AppHttpServer.Port),
+		Addr:    a.serviceProvider.HTTPConfig().Address(),
 		Handler: corsMiddleware.Handler(mux),
 	}
 

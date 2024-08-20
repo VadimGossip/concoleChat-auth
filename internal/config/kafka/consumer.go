@@ -3,12 +3,14 @@ package kafka
 import (
 	"fmt"
 	"github.com/IBM/sarama"
-	"github.com/kelseyhightower/envconfig"
 	"github.com/sirupsen/logrus"
+	"os"
+	"strings"
 )
 
 const (
-	consumerEnvPrefix = "kafka_consumer"
+	brokersEnvName = "KAFKA_BROKERS"
+	groupIDEnvName = "KAFKA_GROUP_ID"
 )
 
 type kafkaConsumerConfig struct {
@@ -17,16 +19,28 @@ type kafkaConsumerConfig struct {
 }
 
 func (cfg *kafkaConsumerConfig) setFromEnv() error {
-	return envconfig.Process(consumerEnvPrefix, cfg)
+	brokersStr := os.Getenv(brokersEnvName)
+	if len(brokersStr) == 0 {
+		return fmt.Errorf("kafkaConsumerConfig kafka brokers address not found")
+	}
+
+	cfg.brokers = strings.Split(brokersStr, ",")
+
+	cfg.groupID = os.Getenv(groupIDEnvName)
+	if len(cfg.groupID) == 0 {
+		return fmt.Errorf("kafkaConsumerConfig kafk group id not found")
+	}
+
+	return nil
 }
 
 func NewKafkaConsumerConfig() (*kafkaConsumerConfig, error) {
 	cfg := &kafkaConsumerConfig{}
 	if err := cfg.setFromEnv(); err != nil {
-		return nil, fmt.Errorf("kafka consumer config set from env err: %s", err)
+		return nil, fmt.Errorf("kafkaConsumerConfig set from env err: %s", err)
 	}
 
-	logrus.Infof("kafka consumer config: [%+v]", *cfg)
+	logrus.Infof("kafkaConsumerConfig: [%+v]", *cfg)
 	return cfg, nil
 }
 

@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -21,7 +20,7 @@ func (a *App) initSwaggerServer(_ context.Context) error {
 	mux.HandleFunc("/api.swagger.json", serveSwaggerFile("/api.swagger.json"))
 
 	a.swaggerServer = &http.Server{
-		Addr:    fmt.Sprintf(":%d", a.cfg.AppSwaggerServer.Port),
+		Addr:    a.serviceProvider.SwaggerConfig().Address(),
 		Handler: mux,
 	}
 
@@ -29,7 +28,7 @@ func (a *App) initSwaggerServer(_ context.Context) error {
 }
 
 func (a *App) runSwaggerServer() error {
-	log.Printf("[%s] Swagger server is running on: %d", a.name, a.cfg.AppSwaggerServer.Port)
+	log.Printf("[%s] Swagger server is running on: %s", a.name, a.serviceProvider.SwaggerConfig().Address())
 
 	err := a.swaggerServer.ListenAndServe()
 	if err != nil {
