@@ -5,6 +5,9 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"time"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/rakyll/statik/fs"
 )
@@ -20,8 +23,9 @@ func (a *App) initSwaggerServer(_ context.Context) error {
 	mux.HandleFunc("/api.swagger.json", serveSwaggerFile("/api.swagger.json"))
 
 	a.swaggerServer = &http.Server{
-		Addr:    a.serviceProvider.SwaggerConfig().Address(),
-		Handler: mux,
+		Addr:              a.serviceProvider.SwaggerConfig().Address(),
+		Handler:           mux,
+		ReadHeaderTimeout: time.Second * 5,
 	}
 
 	return nil
@@ -39,7 +43,7 @@ func (a *App) runSwaggerServer() error {
 }
 
 func serveSwaggerFile(path string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, _ *http.Request) {
 		log.Printf("Serving swagger file: %s", path)
 
 		statikFs, err := fs.New()
@@ -55,7 +59,11 @@ func serveSwaggerFile(path string) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		defer file.Close()
+		defer func() {
+			if closeErr := file.Close(); err != nil {
+				logrus.Infof("serveSwaggerFile close err %s", closeErr)
+			}
+		}()
 
 		log.Printf("Read swagger file: %s", path)
 

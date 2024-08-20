@@ -12,7 +12,7 @@ import (
 func (s *service) ProduceCreate(info *model.UserInfo) error {
 	data, err := json.Marshal(info)
 	if err != nil {
-		return fmt.Errorf("failed to marshal data: %v\n", err)
+		return fmt.Errorf("failed to marshal data: %s", err)
 	}
 
 	err = s.producer.Produce(&sarama.ProducerMessage{

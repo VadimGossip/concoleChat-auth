@@ -2,9 +2,9 @@ package app
 
 import (
 	"context"
-	"github.com/sirupsen/logrus"
 	"net"
 
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"

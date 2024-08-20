@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/VadimGossip/concoleChat-auth/internal/converter"

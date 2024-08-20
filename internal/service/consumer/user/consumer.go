@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+
 	"github.com/VadimGossip/concoleChat-auth/internal/client/kafka"
 	"github.com/VadimGossip/concoleChat-auth/internal/config"
 	defService "github.com/VadimGossip/concoleChat-auth/internal/service"

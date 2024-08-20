@@ -15,7 +15,6 @@ const (
 
 type kafkaProducerConfig struct {
 	brokers []string
-	groupID string
 }
 
 func (cfg *kafkaProducerConfig) setFromEnv() error {
