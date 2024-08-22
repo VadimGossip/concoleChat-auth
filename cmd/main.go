@@ -18,7 +18,7 @@ func main() {
 		logrus.Fatalf("failed to init app[%s]: %s", appName, err)
 	}
 
-	if err = a.Run(); err != nil {
-		logrus.Infof("Application run process finished with error: %s", err)
+	if err = a.Run(ctx); err != nil {
+		logrus.Infof("app[%s] run process finished with error: %s", appName, err)
 	}
 }

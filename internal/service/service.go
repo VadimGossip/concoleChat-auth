@@ -22,3 +22,11 @@ type UserCacheService interface {
 	Set(ctx context.Context, user *model.User) error
 	Delete(ctx context.Context, ID int64) error
 }
+
+type UserConsumerService interface {
+	RunConsumer(ctx context.Context) error
+}
+
+type UserProducerService interface {
+	ProduceCreate(info *model.UserInfo) error
+}

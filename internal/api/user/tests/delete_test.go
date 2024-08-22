@@ -18,6 +18,7 @@ import (
 
 func TestDelete(t *testing.T) {
 	type userServiceMockFunc func(mc *minimock.Controller) service.UserService
+	type userAsyncServiceMockFunc func(mc *minimock.Controller) service.UserProducerService
 
 	type args struct {
 		ctx context.Context
@@ -37,11 +38,12 @@ func TestDelete(t *testing.T) {
 	)
 
 	tests := []struct {
-		name            string
-		args            args
-		want            *emptypb.Empty
-		err             error
-		userServiceMock userServiceMockFunc
+		name                 string
+		args                 args
+		want                 *emptypb.Empty
+		err                  error
+		userServiceMock      userServiceMockFunc
+		userAsyncServiceMock userAsyncServiceMockFunc
 	}{
 		{
 			name: "success case",
@@ -54,6 +56,10 @@ func TestDelete(t *testing.T) {
 			userServiceMock: func(mc *minimock.Controller) service.UserService {
 				mock := serviceMocks.NewUserServiceMock(mc)
 				mock.DeleteMock.Expect(ctx, id).Return(nil)
+				return mock
+			},
+			userAsyncServiceMock: func(mc *minimock.Controller) service.UserProducerService {
+				mock := serviceMocks.NewUserProducerServiceMock(mc)
 				return mock
 			},
 		},
@@ -70,6 +76,10 @@ func TestDelete(t *testing.T) {
 				mock.DeleteMock.Expect(ctx, id).Return(serviceErr)
 				return mock
 			},
+			userAsyncServiceMock: func(mc *minimock.Controller) service.UserProducerService {
+				mock := serviceMocks.NewUserProducerServiceMock(mc)
+				return mock
+			},
 		},
 	}
 
@@ -77,8 +87,9 @@ func TestDelete(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			mc := minimock.NewController(t)
 			userServiceMock := test.userServiceMock(mc)
+			userAsyncServiceMock := test.userAsyncServiceMock(mc)
 
-			impl := user.NewImplementation(userServiceMock)
+			impl := user.NewImplementation(userServiceMock, userAsyncServiceMock)
 			actualRes, err := impl.Delete(test.args.ctx, test.args.req)
 
 			assert.Equal(t, test.want, actualRes)

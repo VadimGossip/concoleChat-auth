@@ -19,6 +19,7 @@ import (
 
 func TestGet(t *testing.T) {
 	type userServiceMockFunc func(mc *minimock.Controller) service.UserService
+	type userAsyncServiceMockFunc func(mc *minimock.Controller) service.UserProducerService
 
 	type args struct {
 		ctx context.Context
@@ -69,11 +70,12 @@ func TestGet(t *testing.T) {
 	)
 
 	tests := []struct {
-		name            string
-		args            args
-		want            *desc.GetResponse
-		err             error
-		userServiceMock userServiceMockFunc
+		name                 string
+		args                 args
+		want                 *desc.GetResponse
+		err                  error
+		userServiceMock      userServiceMockFunc
+		userAsyncServiceMock userAsyncServiceMockFunc
 	}{
 		{
 			name: "success case",
@@ -86,6 +88,10 @@ func TestGet(t *testing.T) {
 			userServiceMock: func(mc *minimock.Controller) service.UserService {
 				mock := serviceMocks.NewUserServiceMock(mc)
 				mock.GetMock.Expect(ctx, id).Return(resUser, nil)
+				return mock
+			},
+			userAsyncServiceMock: func(mc *minimock.Controller) service.UserProducerService {
+				mock := serviceMocks.NewUserProducerServiceMock(mc)
 				return mock
 			},
 		},
@@ -102,6 +108,10 @@ func TestGet(t *testing.T) {
 				mock.GetMock.Expect(ctx, id).Return(nil, serviceErr)
 				return mock
 			},
+			userAsyncServiceMock: func(mc *minimock.Controller) service.UserProducerService {
+				mock := serviceMocks.NewUserProducerServiceMock(mc)
+				return mock
+			},
 		},
 	}
 
@@ -109,8 +119,9 @@ func TestGet(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			mc := minimock.NewController(t)
 			userServiceMock := test.userServiceMock(mc)
+			userAsyncServiceMock := test.userAsyncServiceMock(mc)
 
-			impl := user.NewImplementation(userServiceMock)
+			impl := user.NewImplementation(userServiceMock, userAsyncServiceMock)
 			actualRes, err := impl.Get(test.args.ctx, test.args.req)
 
 			assert.Equal(t, test.want, actualRes)

@@ -1,66 +1,51 @@
 package config
 
 import (
-	"github.com/VadimGossip/concoleChat-auth/internal/model"
-	"github.com/kelseyhightower/envconfig"
-	"github.com/spf13/viper"
+	"time"
+
+	"github.com/IBM/sarama"
 )
 
-func parseConfigFile(configDir string) error {
-	viper.AddConfigPath(configDir)
-	viper.SetConfigName("config")
-	return viper.ReadInConfig()
+type GRPCConfig interface {
+	Address() string
 }
 
-func setFromEnv(cfg *model.Config) error {
-	if err := envconfig.Process("pg", &cfg.PgDb); err != nil {
-		return err
-	}
-	cfg.PgDb = model.PGDbCfg{
-		Host:     "localhost",
-		Port:     5432,
-		Username: "postgres",
-		Name:     "auth-db",
-		SSLMode:  "disable",
-		Password: "postgres",
-	}
-
-	err := envconfig.Process("redis", &cfg.RedisDb)
-	if err != nil {
-		return err
-	}
-	cfg.RedisDb = model.RedisDbCfg{
-		Host:            "localhost",
-		Port:            6379,
-		ReadTimeoutSec:  300,
-		WriteTimeoutSec: 300,
-	}
-	return nil
+type HTTPConfig interface {
+	Address() string
 }
 
-func unmarshal(cfg *model.Config) error {
-	if err := viper.UnmarshalKey("app_grpc", &cfg.AppGrpcServer); err != nil {
-		return err
-	}
-
-	err := viper.UnmarshalKey("user_cache", &cfg.UserCache)
-	if err != nil {
-		return err
-	}
-
-	return nil
+type SwaggerConfig interface {
+	Address() string
 }
 
-func Init(configDir string) (*model.Config, error) {
-	if err := parseConfigFile(configDir); err != nil {
-		return nil, err
-	}
-	cfg := &model.Config{}
-	if err := unmarshal(cfg); err != nil {
-		return nil, err
-	}
-	if err := setFromEnv(cfg); err != nil {
-		return nil, err
-	}
-	return cfg, nil
+type PgConfig interface {
+	DSN() string
+}
+
+type RedisConfig interface {
+	Address() string
+	Username() string
+	Password() string
+	DB() int
+	ReadTimeoutSec() time.Duration
+	WriteTimeoutSec() time.Duration
+}
+
+type UserCacheConfig interface {
+	Expire() time.Duration
+}
+
+type UserKafkaServiceConfig interface {
+	UserTopic() string
+}
+
+type KafkaConsumerConfig interface {
+	Brokers() []string
+	GroupID() string
+	Config() *sarama.Config
+}
+
+type KafkaProducerConfig interface {
+	Brokers() []string
+	Config() *sarama.Config
 }

@@ -1,6 +1,0 @@
-app_grpc:
-  port: 8086
-
-
-user_cache:
-  expire: 300s #user cache value expire

@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/VadimGossip/concoleChat-auth/internal/model"
+	"github.com/VadimGossip/concoleChat-auth/internal/config"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository"
 	def "github.com/VadimGossip/concoleChat-auth/internal/service"
 )
@@ -9,13 +9,13 @@ import (
 var _ def.UserCacheService = (*service)(nil)
 
 type service struct {
-	userCacheCfg        model.UserCacheCfg
+	userCacheConfig     config.UserCacheConfig
 	userCacheRepository repository.UserCacheRepository
 }
 
-func NewService(userCacheCfg model.UserCacheCfg, userCacheRepository repository.UserCacheRepository) *service {
+func NewService(userCacheConfig config.UserCacheConfig, userCacheRepository repository.UserCacheRepository) *service {
 	return &service{
-		userCacheCfg:        userCacheCfg,
+		userCacheConfig:     userCacheConfig,
 		userCacheRepository: userCacheRepository,
 	}
 }
