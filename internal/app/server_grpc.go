@@ -10,7 +10,9 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	"github.com/VadimGossip/concoleChat-auth/internal/interceptor"
-	desc "github.com/VadimGossip/concoleChat-auth/pkg/user_v1"
+	descAccess "github.com/VadimGossip/concoleChat-auth/pkg/access_v1"
+	descAuth "github.com/VadimGossip/concoleChat-auth/pkg/auth_v1"
+	descUser "github.com/VadimGossip/concoleChat-auth/pkg/user_v1"
 )
 
 func (a *App) initGRPCServer(ctx context.Context) error {
@@ -20,8 +22,9 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 	)
 
 	reflection.Register(a.grpcServer)
-
-	desc.RegisterUserV1Server(a.grpcServer, a.serviceProvider.UserImpl(ctx))
+	descAccess.RegisterAccessV1Server(a.grpcServer, a.serviceProvider.AccessImpl(ctx))
+	descAuth.RegisterAuthV1Server(a.grpcServer, a.serviceProvider.AuthImpl(ctx))
+	descUser.RegisterUserV1Server(a.grpcServer, a.serviceProvider.UserImpl(ctx))
 
 	return nil
 }

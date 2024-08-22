@@ -2,7 +2,7 @@ package app
 
 import (
 	"context"
-	"github.com/jcmturner/gokrb5/v8/config"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/VadimGossip/platform_common/pkg/closer"
+	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
@@ -72,11 +73,10 @@ func (a *App) initServiceProvider(_ context.Context) error {
 }
 
 func (a *App) initConfig(_ context.Context) error {
-	err, _ := config.Load(".env")
+	err := godotenv.Load()
 	if err != nil {
-		return err
+		log.Fatal("Error loading .env file")
 	}
-
 	return nil
 }
 
