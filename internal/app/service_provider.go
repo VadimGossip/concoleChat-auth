@@ -2,6 +2,8 @@ package app
 
 import (
 	"context"
+	"github.com/VadimGossip/concoleChat-auth/internal/api/access"
+	"github.com/VadimGossip/concoleChat-auth/internal/api/auth"
 	"log"
 
 	"github.com/IBM/sarama"
@@ -21,17 +23,22 @@ import (
 	db_cfg "github.com/VadimGossip/concoleChat-auth/internal/config/db"
 	kafka_cfg "github.com/VadimGossip/concoleChat-auth/internal/config/kafka"
 	server_cfg "github.com/VadimGossip/concoleChat-auth/internal/config/server"
-	service_cfg "github.com/VadimGossip/concoleChat-auth/internal/config/service"
+	serviceCfg "github.com/VadimGossip/concoleChat-auth/internal/config/service"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository"
+	accessRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/access"
 	auditRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/audit"
 	userRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/user/pg"
 	userCacheRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/user/redis"
 	"github.com/VadimGossip/concoleChat-auth/internal/service"
+	accessService "github.com/VadimGossip/concoleChat-auth/internal/service/access"
 	auditService "github.com/VadimGossip/concoleChat-auth/internal/service/audit"
+	authService "github.com/VadimGossip/concoleChat-auth/internal/service/auth"
 	consumerService "github.com/VadimGossip/concoleChat-auth/internal/service/consumer"
 	userConsumerService "github.com/VadimGossip/concoleChat-auth/internal/service/consumer/user"
+	passwordService "github.com/VadimGossip/concoleChat-auth/internal/service/password"
 	producerService "github.com/VadimGossip/concoleChat-auth/internal/service/producer"
 	userProducerService "github.com/VadimGossip/concoleChat-auth/internal/service/producer/user"
+	tokenService "github.com/VadimGossip/concoleChat-auth/internal/service/token"
 	userService "github.com/VadimGossip/concoleChat-auth/internal/service/user"
 	userCacheService "github.com/VadimGossip/concoleChat-auth/internal/service/usercache"
 )
@@ -44,6 +51,7 @@ type serviceProvider struct {
 	redisConfig            config.RedisConfig
 	userKafkaServiceConfig config.UserKafkaServiceConfig
 	userCacheConfig        config.UserCacheConfig
+	tokenConfig            config.TokenConfig
 	kafkaProducerConfig    config.KafkaProducerConfig
 	kafkaConsumerConfig    config.KafkaConsumerConfig
 
@@ -53,6 +61,7 @@ type serviceProvider struct {
 	auditRepo     repository.AuditRepository
 	userCacheRepo repository.UserCacheRepository
 	userRepo      repository.UserRepository
+	accessRepo    repository.AccessRepository
 
 	consumerGroup        sarama.ConsumerGroup
 	consumerGroupHandler *kafkaConsumer.GroupHandler
@@ -66,8 +75,14 @@ type serviceProvider struct {
 	userService         service.UserService
 	userProducerService producerService.UserProducerService
 	userConsumerService consumerService.UserConsumerService
+	passwordService     service.PasswordService
+	tokenService        service.TokenService
+	accessService       service.AccessService
+	authService         service.AuthService
 
-	userImpl *user.Implementation
+	accessImpl *access.Implementation
+	authImpl   *auth.Implementation
+	userImpl   *user.Implementation
 }
 
 func newServiceProvider() *serviceProvider {
@@ -141,7 +156,7 @@ func (s *serviceProvider) RedisConfig() config.RedisConfig {
 
 func (s *serviceProvider) UserKafkaServiceConfig() config.UserKafkaServiceConfig {
 	if s.userKafkaServiceConfig == nil {
-		cfg, err := service_cfg.NewUserKafkaServiceConfig()
+		cfg, err := serviceCfg.NewUserKafkaServiceConfig()
 		if err != nil {
 			log.Fatalf("failed to get userKafkaServiceConfig: %s", err)
 		}
@@ -154,7 +169,7 @@ func (s *serviceProvider) UserKafkaServiceConfig() config.UserKafkaServiceConfig
 
 func (s *serviceProvider) UserCacheConfig() config.UserCacheConfig {
 	if s.userCacheConfig == nil {
-		cfg, err := service_cfg.NewUserCacheConfig()
+		cfg, err := serviceCfg.NewUserCacheConfig()
 		if err != nil {
 			log.Fatalf("failed to get userCacheConfig: %s", err)
 		}
@@ -163,6 +178,19 @@ func (s *serviceProvider) UserCacheConfig() config.UserCacheConfig {
 	}
 
 	return s.userCacheConfig
+}
+
+func (s *serviceProvider) TokenConfig() config.TokenConfig {
+	if s.tokenConfig == nil {
+		cfg, err := serviceCfg.NewTokenConfig()
+		if err != nil {
+			log.Fatalf("failed to get tokenConfig: %s", err)
+		}
+
+		s.tokenConfig = cfg
+	}
+
+	return s.tokenConfig
 }
 
 func (s *serviceProvider) KafkaProducerConfig() config.KafkaProducerConfig {
@@ -273,6 +301,13 @@ func (s *serviceProvider) UserRepository(ctx context.Context) repository.UserRep
 	return s.userRepo
 }
 
+func (s *serviceProvider) AccessRepository(ctx context.Context) repository.AccessRepository {
+	if s.accessRepo == nil {
+		s.accessRepo = accessRepo.NewRepository(s.PgDbClient(ctx))
+	}
+	return s.accessRepo
+}
+
 func (s *serviceProvider) SaramaSyncProducer() sarama.SyncProducer {
 	if s.saramaSyncProducer == nil {
 		producer, err := sarama.NewSyncProducer(s.KafkaProducerConfig().Brokers(), s.kafkaProducerConfig.Config())
@@ -352,6 +387,61 @@ func (s *serviceProvider) UserConsumerService(ctx context.Context) consumerServi
 	}
 
 	return s.userConsumerService
+}
+
+func (s *serviceProvider) PasswordService() service.PasswordService {
+	if s.passwordService == nil {
+		s.passwordService = passwordService.NewService()
+	}
+
+	return s.passwordService
+}
+
+func (s *serviceProvider) TokenService() service.TokenService {
+	if s.tokenService == nil {
+		s.tokenService = tokenService.NewService()
+	}
+
+	return s.tokenService
+}
+
+func (s *serviceProvider) AccessService(ctx context.Context) service.AccessService {
+	if s.accessService == nil {
+		s.accessService = accessService.NewService(s.TokenConfig(),
+			s.AccessRepository(ctx),
+			s.UserService(ctx),
+			s.PasswordService(),
+			s.TokenService())
+	}
+
+	return s.accessService
+}
+
+func (s *serviceProvider) AuthService(ctx context.Context) service.AuthService {
+	if s.authService == nil {
+		s.authService = authService.NewService(s.TokenConfig(),
+			s.UserService(ctx),
+			s.PasswordService(),
+			s.TokenService())
+	}
+
+	return s.authService
+}
+
+func (s *serviceProvider) AccessImpl(ctx context.Context) *access.Implementation {
+	if s.accessImpl == nil {
+		s.accessImpl = access.NewImplementation(s.AccessService(ctx))
+	}
+
+	return s.accessImpl
+}
+
+func (s *serviceProvider) AuthImpl(ctx context.Context) *auth.Implementation {
+	if s.authImpl == nil {
+		s.authImpl = auth.NewImplementation(s.AuthService(ctx))
+	}
+
+	return s.authImpl
 }
 
 func (s *serviceProvider) UserImpl(ctx context.Context) *user.Implementation {

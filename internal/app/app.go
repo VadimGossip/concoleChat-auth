@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"github.com/jcmturner/gokrb5/v8/config"
 	"net/http"
 	"os"
 	"os/signal"
@@ -49,6 +50,7 @@ func NewApp(ctx context.Context, name, configDir string, appStartedAt time.Time)
 
 func (a *App) initDeps(ctx context.Context) error {
 	inits := []func(context.Context) error{
+		a.initConfig,
 		a.initServiceProvider,
 		a.initGRPCServer,
 		a.initHTTPServer,
@@ -66,6 +68,15 @@ func (a *App) initDeps(ctx context.Context) error {
 
 func (a *App) initServiceProvider(_ context.Context) error {
 	a.serviceProvider = newServiceProvider()
+	return nil
+}
+
+func (a *App) initConfig(_ context.Context) error {
+	err, _ := config.Load(".env")
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
