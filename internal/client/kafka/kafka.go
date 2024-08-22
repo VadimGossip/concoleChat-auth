@@ -3,8 +3,6 @@ package kafka
 import (
 	"context"
 
-	"github.com/IBM/sarama"
-
 	"github.com/VadimGossip/concoleChat-auth/internal/client/kafka/consumer"
 )
 
@@ -14,6 +12,6 @@ type Consumer interface {
 }
 
 type Producer interface {
-	Produce(msg *sarama.ProducerMessage) error
+	Produce(topic string, msg any) error
 	Close() error
 }
