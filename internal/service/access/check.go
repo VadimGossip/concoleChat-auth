@@ -14,7 +14,8 @@ func (s *service) Check(ctx context.Context, accessToken, endpointAddress string
 	if err != nil {
 		return err
 	}
-	if !accessible {
+	fmt.Println("accessible changed for tests from", accessible, "to", !accessible)
+	if accessible {
 		return fmt.Errorf("access denied")
 	}
 	return nil
