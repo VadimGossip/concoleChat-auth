@@ -1,7 +1,5 @@
 package auth
 
-//AuthServiceConfig
-
 import (
 	"github.com/VadimGossip/concoleChat-auth/internal/config"
 	def "github.com/VadimGossip/concoleChat-auth/internal/service"
@@ -10,17 +8,18 @@ import (
 var _ def.AuthService = (*service)(nil)
 
 type service struct {
-	authServiceConfig config.AuthServiceConfig
-	userService       def.UserService
-	passwordService   def.PasswordService
-	tokenService      def.TokenService
+	tokenConfig     config.TokenConfig
+	userService     def.UserService
+	passwordService def.PasswordService
+	tokenService    def.TokenService
 }
 
-func NewService(authServiceConfig config.AuthServiceConfig,
+func NewService(tokenConfig config.TokenConfig,
 	userService def.UserService,
 	passwordService def.PasswordService,
 	tokenService def.TokenService) *service {
 	return &service{
+		tokenConfig:     tokenConfig,
 		userService:     userService,
 		passwordService: passwordService,
 		tokenService:    tokenService,

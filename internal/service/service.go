@@ -10,7 +10,7 @@ import (
 type UserService interface {
 	Create(ctx context.Context, info *model.UserInfo) (int64, error)
 	Get(ctx context.Context, id int64) (*model.User, error)
-	GetByUsername(ctx context.Context, name string) (*model.User, error)
+	GetByUsername(ctx context.Context, username string) (*model.User, error)
 	Update(ctx context.Context, id int64, updateInfo *model.UpdateUserInfo) error
 	Delete(ctx context.Context, id int64) error
 }
@@ -40,7 +40,7 @@ type AuthService interface {
 }
 
 type AccessService interface {
-	Check(ctx context.Context, endpointAddress string) error
+	Check(ctx context.Context, accessToken, endpointAddress string) error
 }
 
 type TokenService interface {

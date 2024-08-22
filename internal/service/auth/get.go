@@ -8,7 +8,7 @@ import (
 )
 
 func (s *service) verifyUserInfo(ctx context.Context, refreshToken string) (model.UserInfo, error) {
-	claims, err := s.tokenService.Verify(refreshToken, []byte(s.authServiceConfig.RefreshTokenSecretKey()))
+	claims, err := s.tokenService.Verify(refreshToken, []byte(s.tokenConfig.RefreshTokenSecretKey()))
 	if err != nil {
 		return model.UserInfo{}, fmt.Errorf("invalid refresh token")
 	}
@@ -26,7 +26,7 @@ func (s *service) RefreshToken(ctx context.Context, refreshToken string) (string
 		return "", err
 	}
 
-	rt, err := s.tokenService.Generate(info, []byte(s.authServiceConfig.RefreshTokenSecretKey()), s.authServiceConfig.RefreshTokenExpiration())
+	rt, err := s.tokenService.Generate(info, []byte(s.tokenConfig.RefreshTokenSecretKey()), s.tokenConfig.RefreshTokenExpiration())
 	if err != nil {
 		return "", err
 	}
@@ -38,7 +38,7 @@ func (s *service) AccessToken(ctx context.Context, refreshToken string) (string,
 	if err != nil {
 		return "", err
 	}
-	rt, err := s.tokenService.Generate(info, []byte(s.authServiceConfig.AccessTokenSecretKey()), s.authServiceConfig.AccessTokenExpiration())
+	rt, err := s.tokenService.Generate(info, []byte(s.tokenConfig.AccessTokenSecretKey()), s.tokenConfig.AccessTokenExpiration())
 	if err != nil {
 		return "", err
 	}

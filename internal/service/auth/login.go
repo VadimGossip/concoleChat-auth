@@ -17,7 +17,7 @@ func (s *service) Login(ctx context.Context, info *model.LoginUserInfo) (string,
 		return "", fmt.Errorf("password is incorrect")
 	}
 
-	refreshToken, err := s.tokenService.Generate(user.Info, []byte(s.authServiceConfig.RefreshTokenSecretKey()), s.authServiceConfig.RefreshTokenExpiration())
+	refreshToken, err := s.tokenService.Generate(user.Info, []byte(s.tokenConfig.RefreshTokenSecretKey()), s.tokenConfig.RefreshTokenExpiration())
 	if err != nil {
 		return "", fmt.Errorf("failed to generate refresh token")
 	}

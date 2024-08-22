@@ -16,70 +16,70 @@ const (
 	accessTokenExpiration  = "ACCESS_TOKEN_EXPIRATION_MIN"
 )
 
-type authServiceConfig struct {
+type tokenConfig struct {
 	refreshSecretKey  string
 	accessSecretKey   string
 	refreshExpiration time.Duration
 	accessExpiration  time.Duration
 }
 
-func (cfg *authServiceConfig) setFromEnv() error {
+func (cfg *tokenConfig) setFromEnv() error {
 	cfg.refreshSecretKey = os.Getenv(refreshTokenSecretKey)
 	if len(cfg.refreshSecretKey) == 0 {
-		return fmt.Errorf("authServiceConfig refreshSecretKey not found")
+		return fmt.Errorf("tokenConfig refreshSecretKey not found")
 	}
 
 	cfg.accessSecretKey = os.Getenv(accessTokenSecretKey)
 	if len(cfg.accessSecretKey) == 0 {
-		return fmt.Errorf("authServiceConfig accessSecretKey not found")
+		return fmt.Errorf("tokenConfig accessSecretKey not found")
 	}
 
 	refreshExpirationStr := os.Getenv(refreshTokenExpiration)
 	if len(refreshExpirationStr) == 0 {
-		return fmt.Errorf("authServiceConfig refreshExpiration not found")
+		return fmt.Errorf("tokenConfig refreshExpiration not found")
 	}
 
 	refreshExpirationMin, err := strconv.ParseInt(refreshExpirationStr, 10, 64)
 	if err != nil {
-		return errors.Wrap(err, "failed to parse authServiceConfig refreshExpiration")
+		return errors.Wrap(err, "failed to parse tokenConfig refreshExpiration")
 	}
 	cfg.refreshExpiration = time.Duration(refreshExpirationMin) * time.Second
 
 	accessExpirationStr := os.Getenv(accessTokenExpiration)
 	if len(accessExpirationStr) == 0 {
-		return fmt.Errorf("authServiceConfig accessExpiration not found")
+		return fmt.Errorf("tokenConfig accessExpiration not found")
 	}
 
 	accessExpirationMin, err := strconv.ParseInt(accessExpirationStr, 10, 64)
 	if err != nil {
-		return errors.Wrap(err, "failed to parse authServiceConfig accessExpiration")
+		return errors.Wrap(err, "failed to parse tokenConfig accessExpiration")
 	}
 	cfg.accessExpiration = time.Duration(accessExpirationMin) * time.Second
 	return nil
 }
 
-func NewAuthServiceConfig() (*authServiceConfig, error) {
-	cfg := &authServiceConfig{}
+func NewTokenConfig() (*tokenConfig, error) {
+	cfg := &tokenConfig{}
 	if err := cfg.setFromEnv(); err != nil {
-		return nil, fmt.Errorf("authServiceConfig set from env err: %s", err)
+		return nil, fmt.Errorf("tokenConfig set from env err: %s", err)
 	}
 
-	logrus.Infof("authServiceConfig: [%+v]", *cfg)
+	logrus.Infof("tokenConfig: [%+v]", *cfg)
 	return cfg, nil
 }
 
-func (cfg *authServiceConfig) RefreshTokenSecretKey() string {
+func (cfg *tokenConfig) RefreshTokenSecretKey() string {
 	return cfg.refreshSecretKey
 }
 
-func (cfg *authServiceConfig) AccessTokenSecretKey() string {
+func (cfg *tokenConfig) AccessTokenSecretKey() string {
 	return cfg.accessSecretKey
 }
 
-func (cfg *authServiceConfig) RefreshTokenExpiration() time.Duration {
+func (cfg *tokenConfig) RefreshTokenExpiration() time.Duration {
 	return cfg.refreshExpiration
 }
 
-func (cfg *authServiceConfig) AccessTokenExpiration() time.Duration {
+func (cfg *tokenConfig) AccessTokenExpiration() time.Duration {
 	return cfg.accessExpiration
 }

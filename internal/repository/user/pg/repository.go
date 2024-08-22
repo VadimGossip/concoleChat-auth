@@ -96,6 +96,31 @@ func (r *repository) Get(ctx context.Context, ID int64) (*model.User, error) {
 	return converter.ToUserFromRepo(repoUser), nil
 }
 
+func (r *repository) GetByUsername(ctx context.Context, username string) (*model.User, error) {
+	userSelect := sq.Select(idColumn, emailColumn, roleColumn, createdAtColumn, updatedAtColumn).
+		From(usersTableName).
+		PlaceholderFormat(sq.Dollar).
+		Where(sq.Eq{username: username})
+
+	query, args, err := userSelect.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	repoUser := &repoModel.User{Info: repoModel.UserInfo{Name: username}}
+	q := db.Query{
+		Name:     repoName + ".Get",
+		QueryRaw: query,
+	}
+	if err = r.db.DB().ScanOneContext(ctx, repoUser, q, args...); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, fmt.Errorf("user not found")
+		}
+		return nil, err
+	}
+	return converter.ToUserFromRepo(repoUser), nil
+}
+
 func (r *repository) Update(ctx context.Context, ID int64, updateInfo *model.UpdateUserInfo) error {
 	userUpdate := sq.Update(usersTableName).
 		PlaceholderFormat(sq.Dollar).

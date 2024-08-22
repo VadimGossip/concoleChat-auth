@@ -34,7 +34,6 @@ func (s *service) Get(ctx context.Context, ID int64) (*model.User, error) {
 
 		return txErr
 	})
-
 	if err != nil {
 		return nil, err
 	}
@@ -46,6 +45,6 @@ func (s *service) Get(ctx context.Context, ID int64) (*model.User, error) {
 	return user, nil
 }
 
-func (s *service) GetByUsername(ctx context.Context, name string) (*model.User, error) {
-	return nil, nil
+func (s *service) GetByUsername(ctx context.Context, username string) (*model.User, error) {
+	return s.userRepository.GetByUsername(ctx, username)
 }
