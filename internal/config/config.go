@@ -31,6 +31,13 @@ type RedisConfig interface {
 	WriteTimeoutSec() time.Duration
 }
 
+type AuthServiceConfig interface {
+	RefreshTokenSecretKey() string
+	AccessTokenSecretKey() string
+	RefreshTokenExpiration() time.Duration
+	AccessTokenExpiration() time.Duration
+}
+
 type UserCacheConfig interface {
 	Expire() time.Duration
 }

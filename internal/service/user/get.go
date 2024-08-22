@@ -45,3 +45,7 @@ func (s *service) Get(ctx context.Context, ID int64) (*model.User, error) {
 
 	return user, nil
 }
+
+func (s *service) GetByUsername(ctx context.Context, name string) (*model.User, error) {
+	return nil, nil
+}

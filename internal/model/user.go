@@ -29,3 +29,8 @@ type UpdateUserInfo struct {
 	Email *string
 	Role  string
 }
+
+type LoginUserInfo struct {
+	Name     string
+	Password string
+}
