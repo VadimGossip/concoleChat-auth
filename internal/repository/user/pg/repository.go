@@ -96,7 +96,7 @@ func (r *repository) Get(ctx context.Context, ID int64) (*model.User, error) {
 }
 
 func (r *repository) GetByUsername(ctx context.Context, username string) (*model.User, error) {
-	userSelect := sq.Select(idColumn, emailColumn, roleColumn, createdAtColumn, updatedAtColumn).
+	userSelect := sq.Select(idColumn, emailColumn, roleColumn, passwordColumn, createdAtColumn, updatedAtColumn).
 		From(usersTableName).
 		PlaceholderFormat(sq.Dollar).
 		Where(sq.Eq{usernameColumn: username})

@@ -15,7 +15,13 @@ func (s *service) Create(ctx context.Context, info *model.UserInfo) (int64, erro
 		return 0, err
 	}
 	user := &model.User{}
-	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+	hashedPassword, err := s.passwordService.Hash(info.Password)
+	if err != nil {
+		return 0, err
+	}
+	info.Password = hashedPassword
+
+	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		var txErr error
 		user, txErr = s.userRepository.Create(ctx, info)
 		if txErr != nil {
