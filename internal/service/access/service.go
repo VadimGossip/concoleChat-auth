@@ -3,6 +3,7 @@ package access
 import (
 	"github.com/VadimGossip/concoleChat-auth/internal/config"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository"
+
 	def "github.com/VadimGossip/concoleChat-auth/internal/service"
 )
 

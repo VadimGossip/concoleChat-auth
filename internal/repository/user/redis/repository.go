@@ -5,12 +5,11 @@ import (
 	"strconv"
 	"time"
 
-	db "github.com/VadimGossip/platform_common/pkg/db/redis"
-
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	def "github.com/VadimGossip/concoleChat-auth/internal/repository"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository/user/redis/converter"
 	repoModel "github.com/VadimGossip/concoleChat-auth/internal/repository/user/redis/model"
+	db "github.com/VadimGossip/platform_common/pkg/db/redis"
 )
 
 var _ def.UserCacheRepository = (*repository)(nil)

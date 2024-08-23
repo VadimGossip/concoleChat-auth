@@ -7,9 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/rakyll/statik/fs"
+	"github.com/sirupsen/logrus"
 )
 
 func (a *App) initSwaggerServer(_ context.Context) error {

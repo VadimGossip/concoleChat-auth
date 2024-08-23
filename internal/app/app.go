@@ -26,17 +26,15 @@ func init() {
 type App struct {
 	serviceProvider *serviceProvider
 	name            string
-	configDir       string
 	appStartedAt    time.Time
 	grpcServer      *grpc.Server
 	httpServer      *http.Server
 	swaggerServer   *http.Server
 }
 
-func NewApp(ctx context.Context, name, configDir string, appStartedAt time.Time) (*App, error) {
+func NewApp(ctx context.Context, name string, appStartedAt time.Time) (*App, error) {
 	a := &App{
 		name:         name,
-		configDir:    configDir,
 		appStartedAt: appStartedAt,
 	}
 

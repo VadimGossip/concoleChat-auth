@@ -3,10 +3,12 @@ package access
 import (
 	"context"
 	"fmt"
-	desc "github.com/VadimGossip/concoleChat-auth/pkg/access_v1"
+	"strings"
+
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"strings"
+
+	desc "github.com/VadimGossip/concoleChat-auth/pkg/access_v1"
 )
 
 const authPrefix = "Bearer "

@@ -1,9 +1,10 @@
 package token
 
 import (
+	"time"
+
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	"github.com/dgrijalva/jwt-go"
-	"time"
 )
 
 func (s *service) Generate(info model.UserInfo, secretKey []byte, duration time.Duration) (string, error) {

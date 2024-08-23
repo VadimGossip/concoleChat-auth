@@ -2,11 +2,6 @@ package app
 
 import (
 	"context"
-	"github.com/VadimGossip/concoleChat-auth/internal/api/access"
-	"github.com/VadimGossip/concoleChat-auth/internal/api/auth"
-	dbCfg "github.com/VadimGossip/concoleChat-auth/internal/config/db"
-	kafkaCfg "github.com/VadimGossip/concoleChat-auth/internal/config/kafka"
-	serverCfg "github.com/VadimGossip/concoleChat-auth/internal/config/server"
 	"log"
 
 	"github.com/IBM/sarama"
@@ -18,11 +13,16 @@ import (
 	"github.com/VadimGossip/platform_common/pkg/db/redis/rdb"
 	"github.com/sirupsen/logrus"
 
+	"github.com/VadimGossip/concoleChat-auth/internal/api/access"
+	"github.com/VadimGossip/concoleChat-auth/internal/api/auth"
 	"github.com/VadimGossip/concoleChat-auth/internal/api/user"
 	"github.com/VadimGossip/concoleChat-auth/internal/client/kafka"
 	kafkaConsumer "github.com/VadimGossip/concoleChat-auth/internal/client/kafka/consumer"
 	kafkaProducer "github.com/VadimGossip/concoleChat-auth/internal/client/kafka/producer"
 	"github.com/VadimGossip/concoleChat-auth/internal/config"
+	dbCfg "github.com/VadimGossip/concoleChat-auth/internal/config/db"
+	kafkaCfg "github.com/VadimGossip/concoleChat-auth/internal/config/kafka"
+	serverCfg "github.com/VadimGossip/concoleChat-auth/internal/config/server"
 	serviceCfg "github.com/VadimGossip/concoleChat-auth/internal/config/service"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository"
 	accessRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/access"

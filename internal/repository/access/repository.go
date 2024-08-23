@@ -3,6 +3,7 @@ package audit
 import (
 	"context"
 	"fmt"
+
 	sq "github.com/Masterminds/squirrel"
 	db "github.com/VadimGossip/platform_common/pkg/db/postgres"
 
