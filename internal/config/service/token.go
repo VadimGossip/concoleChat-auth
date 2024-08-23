@@ -43,7 +43,7 @@ func (cfg *tokenConfig) setFromEnv() error {
 	if err != nil {
 		return errors.Wrap(err, "failed to parse tokenConfig refreshExpiration")
 	}
-	cfg.refreshExpiration = time.Duration(refreshExpirationMin) * time.Second
+	cfg.refreshExpiration = time.Duration(refreshExpirationMin) * time.Minute
 
 	accessExpirationStr := os.Getenv(accessTokenExpiration)
 	if len(accessExpirationStr) == 0 {
@@ -54,7 +54,7 @@ func (cfg *tokenConfig) setFromEnv() error {
 	if err != nil {
 		return errors.Wrap(err, "failed to parse tokenConfig accessExpiration")
 	}
-	cfg.accessExpiration = time.Duration(accessExpirationMin) * time.Second
+	cfg.accessExpiration = time.Duration(accessExpirationMin) * time.Minute
 	return nil
 }
 

@@ -6,6 +6,8 @@ import (
 )
 
 func (s *service) Check(ctx context.Context, accessToken, endpointAddress string) error {
+	fmt.Println(accessToken)
+
 	claims, err := s.tokenService.Verify(accessToken, []byte(s.tokenConfig.AccessTokenSecretKey()))
 	if err != nil {
 		return fmt.Errorf("access token is invalid")
