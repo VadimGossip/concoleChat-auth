@@ -4,6 +4,9 @@ import (
 	"context"
 	"github.com/VadimGossip/concoleChat-auth/internal/api/access"
 	"github.com/VadimGossip/concoleChat-auth/internal/api/auth"
+	dbCfg "github.com/VadimGossip/concoleChat-auth/internal/config/db"
+	kafkaCfg "github.com/VadimGossip/concoleChat-auth/internal/config/kafka"
+	serverCfg "github.com/VadimGossip/concoleChat-auth/internal/config/server"
 	"log"
 
 	"github.com/IBM/sarama"
@@ -20,9 +23,6 @@ import (
 	kafkaConsumer "github.com/VadimGossip/concoleChat-auth/internal/client/kafka/consumer"
 	kafkaProducer "github.com/VadimGossip/concoleChat-auth/internal/client/kafka/producer"
 	"github.com/VadimGossip/concoleChat-auth/internal/config"
-	db_cfg "github.com/VadimGossip/concoleChat-auth/internal/config/db"
-	kafka_cfg "github.com/VadimGossip/concoleChat-auth/internal/config/kafka"
-	server_cfg "github.com/VadimGossip/concoleChat-auth/internal/config/server"
 	serviceCfg "github.com/VadimGossip/concoleChat-auth/internal/config/service"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository"
 	accessRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/access"
@@ -91,7 +91,7 @@ func newServiceProvider() *serviceProvider {
 
 func (s *serviceProvider) GRPCConfig() config.GRPCConfig {
 	if s.grpcConfig == nil {
-		cfg, err := server_cfg.NewGRPCConfig()
+		cfg, err := serverCfg.NewGRPCConfig()
 		if err != nil {
 			log.Fatalf("failed to get grpcConfig: %s", err)
 		}
@@ -104,7 +104,7 @@ func (s *serviceProvider) GRPCConfig() config.GRPCConfig {
 
 func (s *serviceProvider) HTTPConfig() config.HTTPConfig {
 	if s.httpConfig == nil {
-		cfg, err := server_cfg.NewHTTPConfig()
+		cfg, err := serverCfg.NewHTTPConfig()
 		if err != nil {
 			log.Fatalf("failed to get httpConfig: %s", err)
 		}
@@ -117,7 +117,7 @@ func (s *serviceProvider) HTTPConfig() config.HTTPConfig {
 
 func (s *serviceProvider) SwaggerConfig() config.SwaggerConfig {
 	if s.swaggerConfig == nil {
-		cfg, err := server_cfg.NewSwaggerConfig()
+		cfg, err := serverCfg.NewSwaggerConfig()
 		if err != nil {
 			log.Fatalf("failed to get swaggerConfig: %s", err)
 		}
@@ -130,7 +130,7 @@ func (s *serviceProvider) SwaggerConfig() config.SwaggerConfig {
 
 func (s *serviceProvider) PGConfig() config.PgConfig {
 	if s.pgConfig == nil {
-		cfg, err := db_cfg.NewPGConfig()
+		cfg, err := dbCfg.NewPGConfig()
 		if err != nil {
 			log.Fatalf("failed to get pgConfig: %s", err)
 		}
@@ -143,7 +143,7 @@ func (s *serviceProvider) PGConfig() config.PgConfig {
 
 func (s *serviceProvider) RedisConfig() config.RedisConfig {
 	if s.redisConfig == nil {
-		cfg, err := db_cfg.NewRedisConfig()
+		cfg, err := dbCfg.NewRedisConfig()
 		if err != nil {
 			log.Fatalf("failed to get redisConfig: %s", err)
 		}
@@ -195,7 +195,7 @@ func (s *serviceProvider) TokenConfig() config.TokenConfig {
 
 func (s *serviceProvider) KafkaProducerConfig() config.KafkaProducerConfig {
 	if s.kafkaProducerConfig == nil {
-		cfg, err := kafka_cfg.NewKafkaProducerConfig()
+		cfg, err := kafkaCfg.NewKafkaProducerConfig()
 		if err != nil {
 			log.Fatalf("failed to get kafkaProducerConfig: %s", err)
 		}
@@ -208,7 +208,7 @@ func (s *serviceProvider) KafkaProducerConfig() config.KafkaProducerConfig {
 
 func (s *serviceProvider) KafkaConsumerConfig() config.KafkaConsumerConfig {
 	if s.kafkaConsumerConfig == nil {
-		cfg, err := kafka_cfg.NewKafkaConsumerConfig()
+		cfg, err := kafkaCfg.NewKafkaConsumerConfig()
 		if err != nil {
 			log.Fatalf("failed to get kafkaConsumerConfig: %s", err)
 		}
@@ -256,7 +256,7 @@ func (s *serviceProvider) RedisDbClient(ctx context.Context) redis.Client {
 		})
 
 		if err := cl.DB().Ping(ctx); err != nil {
-			log.Fatalf("kdb ping error: %s", err)
+			log.Fatalf("redis ping error: %s", err)
 		}
 
 		closer.Add(cl.Close)

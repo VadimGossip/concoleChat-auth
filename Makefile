@@ -4,7 +4,7 @@ LOCAL_MIGRATION_DIR=$(CURDIR)/migrations
 LOCAL_MIGRATION_DSN="host=localhost port=5432 dbname=chat-server-db user=postgres password=postgres sslmode=disable"
 
 install-golangci-lint:
-	GOBIN=$(LOCAL_BIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.59.1
+	GOBIN=$(LOCAL_BIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
 lint:
 	$(LOCAL_BIN)/golangci-lint run ./... --config .golangci.pipeline.yaml
