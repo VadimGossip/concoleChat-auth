@@ -7,7 +7,10 @@ create table accessible_roles(
       primary key(endpoint_address, role)
 );
 
-insert into accessible_roles(endpoint_address, role) values ('/user/v1/create_async', 'ADMIN');
+insert into accessible_roles(endpoint_address, role) values ('/chat/v1/delete', 'ADMIN');
+insert into accessible_roles(endpoint_address, role) values ('/chat/v1/create', 'ADMIN');
+insert into accessible_roles(endpoint_address, role) values ('/chat/v1/send', 'ADMIN');
+insert into accessible_roles(endpoint_address, role) values ('/chat/v1/send', 'USER');
 commit;
 -- +goose StatementEnd
 
