@@ -2,7 +2,6 @@ package audit
 
 import (
 	"context"
-
 	sq "github.com/Masterminds/squirrel"
 	db "github.com/VadimGossip/platform_common/pkg/db/postgres"
 
@@ -29,7 +28,7 @@ func NewRepository(db db.Client) *repository {
 }
 
 func (r *repository) AccessibleByRole(ctx context.Context, role, endpointAddress string) (bool, error) {
-	countSelect := sq.Select("count *").
+	countSelect := sq.Select("count (*)").
 		From(accessibleRolesTableName).
 		PlaceholderFormat(sq.Dollar).
 		Where(sq.Eq{endpointAddressColumn: endpointAddressColumn}).

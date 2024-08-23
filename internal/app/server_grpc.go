@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"github.com/VadimGossip/concoleChat-auth/internal/interceptor"
 	"net"
 
 	"github.com/sirupsen/logrus"
@@ -9,7 +10,6 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/VadimGossip/concoleChat-auth/internal/interceptor"
 	descAccess "github.com/VadimGossip/concoleChat-auth/pkg/access_v1"
 	descAuth "github.com/VadimGossip/concoleChat-auth/pkg/auth_v1"
 	descUser "github.com/VadimGossip/concoleChat-auth/pkg/user_v1"
@@ -18,7 +18,7 @@ import (
 func (a *App) initGRPCServer(ctx context.Context) error {
 	a.grpcServer = grpc.NewServer(
 		grpc.Creds(insecure.NewCredentials()),
-		grpc.UnaryInterceptor(interceptor.ValidateInterceptor),
+		grpc.UnaryInterceptor(interceptor.BuildInterceptor()),
 	)
 
 	reflection.Register(a.grpcServer)
