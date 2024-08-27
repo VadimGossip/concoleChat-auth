@@ -20,7 +20,7 @@ type validator interface {
 	Validate() error
 }
 
-func (*interceptor) Hook() grpc.UnaryServerInterceptor {
+func (i *interceptor) Hook() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		if val, ok := req.(validator); ok {
 			if err := val.Validate(); err != nil {
