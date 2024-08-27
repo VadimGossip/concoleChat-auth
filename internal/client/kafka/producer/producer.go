@@ -16,12 +16,12 @@ func NewProducer(syncProducer sarama.SyncProducer) *producer {
 	}
 }
 
-type marshaler interface {
+type marshaller interface {
 	Marshal() ([]byte, error)
 }
 
 func (p *producer) Produce(topic string, msg any) error {
-	if val, ok := msg.(marshaler); ok {
+	if val, ok := msg.(marshaller); ok {
 		data, err := val.Marshal()
 		if err != nil {
 			return fmt.Errorf("failed to marshal data: %s", err)
@@ -33,6 +33,7 @@ func (p *producer) Produce(topic string, msg any) error {
 		if err != nil {
 			return err
 		}
+		return nil
 	}
 
 	return fmt.Errorf("the message must implement the method Marshal() ([]byte, error)")
