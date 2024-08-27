@@ -1,7 +1,6 @@
 package producer
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/IBM/sarama"
@@ -17,22 +16,26 @@ func NewProducer(syncProducer sarama.SyncProducer) *producer {
 	}
 }
 
+type marshaler interface {
+	Marshal() ([]byte, error)
+}
+
 func (p *producer) Produce(topic string, msg any) error {
-	data, err := json.Marshal(msg)
-	if err != nil {
-		return fmt.Errorf("failed to marshal data: %s", err)
+	if val, ok := msg.(marshaler); ok {
+		data, err := val.Marshal()
+		if err != nil {
+			return fmt.Errorf("failed to marshal data: %s", err)
+		}
+		_, _, err = p.syncProducer.SendMessage(&sarama.ProducerMessage{
+			Topic: topic,
+			Value: sarama.StringEncoder(data),
+		})
+		if err != nil {
+			return err
+		}
 	}
 
-	_, _, err = p.syncProducer.SendMessage(&sarama.ProducerMessage{
-		Topic: topic,
-		Value: sarama.StringEncoder(data),
-	})
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return fmt.Errorf("the message must implement the method Marshal() ([]byte, error)")
 }
 
 func (p *producer) Close() error {

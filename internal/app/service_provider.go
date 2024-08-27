@@ -24,6 +24,7 @@ import (
 	kafkaCfg "github.com/VadimGossip/concoleChat-auth/internal/config/kafka"
 	serverCfg "github.com/VadimGossip/concoleChat-auth/internal/config/server"
 	serviceCfg "github.com/VadimGossip/concoleChat-auth/internal/config/service"
+	"github.com/VadimGossip/concoleChat-auth/internal/interceptor"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository"
 	accessRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/access"
 	auditRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/audit"
@@ -79,6 +80,8 @@ type serviceProvider struct {
 	tokenService        service.TokenService
 	accessService       service.AccessService
 	authService         service.AuthService
+
+	grpcInterceptor interceptor.GRPCInterceptor
 
 	accessImpl *access.Implementation
 	authImpl   *auth.Implementation
@@ -426,6 +429,14 @@ func (s *serviceProvider) AuthService(ctx context.Context) service.AuthService {
 	}
 
 	return s.authService
+}
+
+func (s *serviceProvider) GRPCInterceptor() interceptor.GRPCInterceptor {
+	if s.grpcInterceptor == nil {
+		s.grpcInterceptor = interceptor.NewInterceptor()
+	}
+
+	return s.grpcInterceptor
 }
 
 func (s *serviceProvider) AccessImpl(ctx context.Context) *access.Implementation {
