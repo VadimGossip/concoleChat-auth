@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 
 	"github.com/IBM/sarama"
-
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 )
 

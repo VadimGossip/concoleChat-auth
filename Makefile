@@ -4,7 +4,7 @@ LOCAL_MIGRATION_DIR=$(CURDIR)/migrations
 LOCAL_MIGRATION_DSN="host=localhost port=5432 dbname=chat-server-db user=postgres password=postgres sslmode=disable"
 
 install-golangci-lint:
-	GOBIN=$(LOCAL_BIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.59.1
+	GOBIN=$(LOCAL_BIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
 lint:
 	$(LOCAL_BIN)/golangci-lint run ./... --config .golangci.pipeline.yaml
@@ -26,6 +26,8 @@ get-deps:
 
 generate:
 	mkdir -p pkg/swagger
+	make generate-auth-api-tmp
+	make generate-access-api-tmp
 	make generate-user-api-tmp
 	$(LOCAL_BIN)/statik -src=pkg/swagger/ -include='*.css,*.html,*.js,*.json,*.png'
 
@@ -43,6 +45,36 @@ generate-user-api:
 	--openapiv2_out=allow_merge=true,merge_file_name=api:pkg/swagger \
 	--plugin=protoc-gen-openapiv2=bin/protoc-gen-openapiv2 \
 	api/user_v1/user.proto
+
+generate-auth-api-tmp:
+	mkdir -p pkg/auth_v1
+	protoc --proto_path api/auth_v1 --proto_path vendor.protogen \
+	--go_out=pkg/auth_v1 --go_opt=paths=source_relative \
+	--plugin=protoc-gen-go=bin/protoc-gen-go.exe \
+	--go-grpc_out=pkg/auth_v1 --go-grpc_opt=paths=source_relative \
+	--plugin=protoc-gen-go-grpc=bin/protoc-gen-go-grpc.exe \
+	--validate_out lang=go:pkg/auth_v1 --validate_opt=paths=source_relative \
+	--plugin=protoc-gen-validate=bin/protoc-gen-validate.exe \
+	--grpc-gateway_out=pkg/auth_v1 --grpc-gateway_opt=paths=source_relative \
+	--plugin=protoc-gen-grpc-gateway=bin/protoc-gen-grpc-gateway.exe \
+	--openapiv2_out=allow_merge=true,merge_file_name=api:pkg/swagger \
+   	--plugin=protoc-gen-openapiv2=bin/protoc-gen-openapiv2.exe \
+	api/auth_v1/auth.proto
+
+generate-access-api-tmp:
+	mkdir -p pkg/access_v1
+	protoc --proto_path api/access_v1 --proto_path vendor.protogen \
+	--go_out=pkg/access_v1 --go_opt=paths=source_relative \
+	--plugin=protoc-gen-go=bin/protoc-gen-go.exe \
+	--go-grpc_out=pkg/access_v1 --go-grpc_opt=paths=source_relative \
+	--plugin=protoc-gen-go-grpc=bin/protoc-gen-go-grpc.exe \
+	--validate_out lang=go:pkg/access_v1 --validate_opt=paths=source_relative \
+	--plugin=protoc-gen-validate=bin/protoc-gen-validate.exe \
+	--grpc-gateway_out=pkg/access_v1 --grpc-gateway_opt=paths=source_relative \
+	--plugin=protoc-gen-grpc-gateway=bin/protoc-gen-grpc-gateway.exe \
+	--openapiv2_out=allow_merge=true,merge_file_name=api:pkg/swagger \
+   	--plugin=protoc-gen-openapiv2=bin/protoc-gen-openapiv2.exe \
+	api/access_v1/access.proto
 
 generate-user-api-tmp:
 	mkdir -p pkg/user_v1

@@ -1,8 +1,6 @@
 package consumer
 
-import (
-	"context"
-)
+import "context"
 
 type UserConsumerService interface {
 	RunConsumer(ctx context.Context) error

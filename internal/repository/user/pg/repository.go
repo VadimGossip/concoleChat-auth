@@ -40,7 +40,6 @@ func NewRepository(db db.Client) *repository {
 	}
 }
 
-// Create need to hash password
 func (r *repository) Create(ctx context.Context, info *model.UserInfo) (*model.User, error) {
 	repoInfo := converter.ToRepoFromUserInfo(info)
 	userInsert := sq.Insert(usersTableName).
@@ -87,6 +86,32 @@ func (r *repository) Get(ctx context.Context, ID int64) (*model.User, error) {
 		Name:     repoName + ".Get",
 		QueryRaw: query,
 	}
+	if err = r.db.DB().ScanOneContext(ctx, repoUser, q, args...); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, fmt.Errorf("user not found")
+		}
+		return nil, err
+	}
+	return converter.ToUserFromRepo(repoUser), nil
+}
+
+func (r *repository) GetByUsername(ctx context.Context, username string) (*model.User, error) {
+	userSelect := sq.Select(idColumn, emailColumn, roleColumn, passwordColumn, createdAtColumn, updatedAtColumn).
+		From(usersTableName).
+		PlaceholderFormat(sq.Dollar).
+		Where(sq.Eq{usernameColumn: username})
+
+	query, args, err := userSelect.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	repoUser := &repoModel.User{Info: repoModel.UserInfo{Name: username}}
+	q := db.Query{
+		Name:     repoName + ".GetByUsername",
+		QueryRaw: query,
+	}
+
 	if err = r.db.DB().ScanOneContext(ctx, repoUser, q, args...); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, fmt.Errorf("user not found")

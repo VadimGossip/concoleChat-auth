@@ -2,6 +2,7 @@ package audit
 
 import (
 	"github.com/VadimGossip/concoleChat-auth/internal/repository"
+
 	def "github.com/VadimGossip/concoleChat-auth/internal/service"
 )
 

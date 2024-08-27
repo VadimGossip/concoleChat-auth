@@ -47,6 +47,7 @@ issues:
   exclude:
     # _ instead of err checks
     - G104
+    - G101
     - should have comment or be unexported
     - exported func .* returns unexported type .*, which can be annoying to use
     - should have a package comment

@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 // Role
 const (
@@ -17,6 +20,10 @@ type UserInfo struct {
 	Role            string
 }
 
+func (u UserInfo) Marshal() ([]byte, error) {
+	return json.Marshal(u)
+}
+
 type User struct {
 	ID        int64
 	Info      UserInfo
@@ -28,4 +35,9 @@ type UpdateUserInfo struct {
 	Name  *string
 	Email *string
 	Role  string
+}
+
+type LoginUserInfo struct {
+	Name     string
+	Password string
 }
