@@ -5,8 +5,8 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/VadimGossip/concoleChat-auth/internal/logger"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -72,7 +72,7 @@ func NewPGConfig() (*pgConfig, error) {
 	if err := cfg.setFromEnv(); err != nil {
 		return nil, fmt.Errorf("pgConfig set from env err: %s", err)
 	}
-	logrus.Infof("pgConfig: [%+v]", *cfg)
+	logger.Infof("pgConfig: [%+v]", *cfg)
 
 	return cfg, nil
 }

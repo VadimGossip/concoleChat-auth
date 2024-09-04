@@ -5,8 +5,8 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/VadimGossip/concoleChat-auth/internal/logger"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -40,7 +40,7 @@ func NewHTTPConfig() (*httpConfig, error) {
 		return nil, fmt.Errorf("httpConfig set from env err: %s", err)
 	}
 
-	logrus.Infof("httpConfig: [%+v]", *cfg)
+	logger.Infof("httpConfig: [%+v]", *cfg)
 	return cfg, nil
 }
 

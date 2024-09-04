@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/VadimGossip/concoleChat-auth/internal/logger"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -89,7 +89,7 @@ func NewRedisConfig() (*redisConfig, error) {
 	if err := cfg.setFromEnv(); err != nil {
 		return nil, fmt.Errorf("redisConfig set from env err: %s", err)
 	}
-	logrus.Infof("redisConfig: [%+v]", *cfg)
+	logger.Infof("redisConfig: [%+v]", *cfg)
 	return cfg, nil
 }
 

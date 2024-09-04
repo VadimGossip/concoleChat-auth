@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/VadimGossip/concoleChat-auth/internal/logger"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -65,7 +65,7 @@ func NewTokenConfig() (*tokenConfig, error) {
 		return nil, fmt.Errorf("tokenConfig set from env err: %s", err)
 	}
 
-	logrus.Infof("tokenConfig: [%+v]", *cfg)
+	logger.Infof("tokenConfig: [%+v]", *cfg)
 	return cfg, nil
 }
 

@@ -5,14 +5,6 @@ import (
 	"log"
 
 	"github.com/IBM/sarama"
-	"github.com/VadimGossip/platform_common/pkg/closer"
-	"github.com/VadimGossip/platform_common/pkg/db/postgres"
-	"github.com/VadimGossip/platform_common/pkg/db/postgres/pg"
-	"github.com/VadimGossip/platform_common/pkg/db/postgres/transaction"
-	"github.com/VadimGossip/platform_common/pkg/db/redis"
-	"github.com/VadimGossip/platform_common/pkg/db/redis/rdb"
-	"github.com/sirupsen/logrus"
-
 	"github.com/VadimGossip/concoleChat-auth/internal/api/access"
 	"github.com/VadimGossip/concoleChat-auth/internal/api/auth"
 	"github.com/VadimGossip/concoleChat-auth/internal/api/user"
@@ -25,6 +17,7 @@ import (
 	serverCfg "github.com/VadimGossip/concoleChat-auth/internal/config/server"
 	serviceCfg "github.com/VadimGossip/concoleChat-auth/internal/config/service"
 	"github.com/VadimGossip/concoleChat-auth/internal/interceptor"
+	"github.com/VadimGossip/concoleChat-auth/internal/logger"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository"
 	accessRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/access"
 	auditRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/audit"
@@ -42,6 +35,12 @@ import (
 	tokenService "github.com/VadimGossip/concoleChat-auth/internal/service/token"
 	userService "github.com/VadimGossip/concoleChat-auth/internal/service/user"
 	userCacheService "github.com/VadimGossip/concoleChat-auth/internal/service/usercache"
+	"github.com/VadimGossip/platform_common/pkg/closer"
+	"github.com/VadimGossip/platform_common/pkg/db/postgres"
+	"github.com/VadimGossip/platform_common/pkg/db/postgres/pg"
+	"github.com/VadimGossip/platform_common/pkg/db/postgres/transaction"
+	"github.com/VadimGossip/platform_common/pkg/db/redis"
+	"github.com/VadimGossip/platform_common/pkg/db/redis/rdb"
 )
 
 type serviceProvider struct {
@@ -226,7 +225,7 @@ func (s *serviceProvider) PgDbClient(ctx context.Context) postgres.Client {
 	if s.pgDbClient == nil {
 		cl, err := pg.New(ctx, s.PGConfig().DSN())
 		if err != nil {
-			logrus.Fatalf("failed to create db client: %s", err)
+			logger.Fatalf("failed to create db client: %s", err)
 		}
 
 		if err = cl.DB().Ping(ctx); err != nil {

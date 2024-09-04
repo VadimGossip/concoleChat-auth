@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/VadimGossip/concoleChat-auth/internal/logger"
 	"github.com/rakyll/statik/fs"
-	"github.com/sirupsen/logrus"
 )
 
 func (a *App) initSwaggerServer(_ context.Context) error {
@@ -31,7 +31,7 @@ func (a *App) initSwaggerServer(_ context.Context) error {
 }
 
 func (a *App) runSwaggerServer() error {
-	log.Printf("[%s] Swagger server is running on: %s", a.name, a.serviceProvider.SwaggerConfig().Address())
+	log.Printf("%s Swagger server is running on: %s", a.name, a.serviceProvider.SwaggerConfig().Address())
 
 	err := a.swaggerServer.ListenAndServe()
 	if err != nil {
@@ -60,7 +60,7 @@ func serveSwaggerFile(path string) http.HandlerFunc {
 		}
 		defer func() {
 			if closeErr := file.Close(); err != nil {
-				logrus.Infof("serveSwaggerFile close err %s", closeErr)
+				logger.Infof("serveSwaggerFile close err %s", closeErr)
 			}
 		}()
 

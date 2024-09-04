@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/VadimGossip/concoleChat-auth/internal/logger"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -38,7 +38,7 @@ func NewUserCacheConfig() (*userCacheConfig, error) {
 		return nil, fmt.Errorf("userCacheConfig set from env err: %s", err)
 	}
 
-	logrus.Infof("userCacheConfig: [%+v]", *cfg)
+	logger.Infof("userCacheConfig: [%+v]", *cfg)
 	return cfg, nil
 }
 

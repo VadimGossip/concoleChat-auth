@@ -4,8 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/sirupsen/logrus"
-
+	"github.com/VadimGossip/concoleChat-auth/internal/logger"
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 	"github.com/VadimGossip/concoleChat-auth/internal/service/user/validator"
 )
@@ -43,7 +42,7 @@ func (s *service) Create(ctx context.Context, info *model.UserInfo) (int64, erro
 	}
 
 	if err = s.userCacheService.Set(ctx, user); err != nil {
-		logrus.Infof("User cache service err %s on set user = %+v", err, user)
+		logger.Infof("User cache service err %s on set user = %+v", err, user)
 	}
 
 	return user.ID, nil
