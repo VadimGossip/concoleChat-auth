@@ -138,8 +138,9 @@ test-coverage:
 	grep -sqFx "/coverage.out" .gitignore || echo "/coverage.out" >> .gitignore
 
 grpc-load-test:
-	ghz \
-		--proto api/user_v1/user.proto \
+	$(LOCAL_BIN)/ghz \
+		--proto /api/user_v1/user.proto \
+		--import-paths vendor.protogen/ \
 		--call user_v1.UserV1.Get \
 		--data '{"id": 1}' \
 		--rps 100 \
