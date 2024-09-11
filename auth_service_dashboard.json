@@ -25,7 +25,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bf865d35-2eb7-4209-91c4-5ecea9095e44"
+        "uid": "da96a86c-0229-493d-94cd-f5c4967861bf"
       },
       "fieldConfig": {
         "defaults": {
@@ -103,10 +103,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bf865d35-2eb7-4209-91c4-5ecea9095e44"
+            "uid": "da96a86c-0229-493d-94cd-f5c4967861bf"
           },
           "editorMode": "code",
-          "expr": "rate(my_space_grpc_my_app_requests_total[5s])",
+          "expr": "rate(consoleChat_grpc_auth_requests_total[5s])",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -119,7 +119,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bf865d35-2eb7-4209-91c4-5ecea9095e44"
+        "uid": "da96a86c-0229-493d-94cd-f5c4967861bf"
       },
       "fieldConfig": {
         "defaults": {
@@ -231,7 +231,7 @@
             "uid": "bf865d35-2eb7-4209-91c4-5ecea9095e44"
           },
           "editorMode": "code",
-          "expr": "rate(my_space_grpc_my_app_responses_total[10s])",
+          "expr": "rate(consoleChat_grpc_auth_responses_total[10s])",
           "instant": false,
           "legendFormat": "{{status}}:{{method}}",
           "range": true,
@@ -244,7 +244,101 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bf865d35-2eb7-4209-91c4-5ecea9095e44"
+        "uid": "da96a86c-0229-493d-94cd-f5c4967861bf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "da96a86c-0229-493d-94cd-f5c4967861bf"
+          },
+          "editorMode": "code",
+          "expr": "sum(consoleChat_grpc_auth_responses_ema_seconds * 1000) by (status)",
+          "instant": false,
+          "legendFormat": "{{status}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Скользящее среднее(ms)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "da96a86c-0229-493d-94cd-f5c4967861bf"
       },
       "fieldConfig": {
         "defaults": {
@@ -333,7 +427,7 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 0,
+        "x": 12,
         "y": 8
       },
       "id": 3,
@@ -353,10 +447,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bf865d35-2eb7-4209-91c4-5ecea9095e44"
+            "uid": "da96a86c-0229-493d-94cd-f5c4967861bf"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.9,\n    sum(rate(my_space_grpc_my_app_histogram_response_time_seconds_bucket[10s])) by (le, status)\n)",
+          "expr": "histogram_quantile(0.9,\n    sum(rate(consoleChat_grpc_auth_histogram_response_time_seconds_bucket[10s])) by (le, status)\n)",
           "instant": false,
           "legendFormat": "0.9q : {{status}}",
           "range": true,
@@ -365,7 +459,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bf865d35-2eb7-4209-91c4-5ecea9095e44"
+            "uid": "da96a86c-0229-493d-94cd-f5c4967861bf"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5,\n    sum(rate(my_space_grpc_my_app_histogram_response_time_seconds_bucket[10s])) by (le, status)\n)",
@@ -393,8 +487,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Service overview",
+  "title": "Auth Service Overview",
   "uid": "b6b656b1-d42c-454d-b033-a0be8019db6f",
-  "version": 2,
+  "version": 6,
   "weekStart": ""
 }
