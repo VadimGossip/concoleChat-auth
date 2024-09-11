@@ -21,8 +21,8 @@ type prometheusConfig struct {
 
 func (cfg *prometheusConfig) setFromEnv() error {
 	var err error
-	cfg.host = os.Getenv(swaggerHostEnvName)
-	portStr := os.Getenv(swaggerPortEnvName)
+	cfg.host = os.Getenv(prometheusHostEnvName)
+	portStr := os.Getenv(prometheusPortEnvName)
 	if len(portStr) == 0 {
 		return fmt.Errorf("prometheusConfig port not found")
 	}
@@ -34,8 +34,8 @@ func (cfg *prometheusConfig) setFromEnv() error {
 	return nil
 }
 
-func NewPrometheusConfig() (*swaggerConfig, error) {
-	cfg := &swaggerConfig{}
+func NewPrometheusConfig() (*prometheusConfig, error) {
+	cfg := &prometheusConfig{}
 	if err := cfg.setFromEnv(); err != nil {
 		return nil, fmt.Errorf("prometheusConfig set from env err: %s", err)
 	}

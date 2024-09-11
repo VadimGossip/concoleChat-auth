@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,6 +13,7 @@ import (
 	"github.com/VadimGossip/concoleChat-auth/internal/logger"
 	"github.com/VadimGossip/concoleChat-auth/internal/metric"
 	"github.com/VadimGossip/platform_common/pkg/closer"
+	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 
 	//import for init
@@ -41,8 +43,17 @@ func NewApp(ctx context.Context, name string, appStartedAt time.Time) (*App, err
 	return a, nil
 }
 
+func (a *App) initConfig(_ context.Context) error {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	return nil
+}
+
 func (a *App) initDeps(ctx context.Context) error {
 	inits := []func(context.Context) error{
+		a.initConfig,
 		metric.Init,
 		a.initServiceProvider,
 		a.initGRPCServer,
@@ -73,7 +84,7 @@ func (a *App) Run(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 
 	wg := &sync.WaitGroup{}
-	wg.Add(4)
+	wg.Add(5)
 
 	go func() {
 		defer wg.Done()

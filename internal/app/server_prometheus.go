@@ -12,7 +12,7 @@ func (a *App) initPrometheusServer(_ context.Context) error {
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())
 
-	a.swaggerServer = &http.Server{
+	a.prometheusServer = &http.Server{
 		Addr:    a.serviceProvider.PrometheusConfig().Address(),
 		Handler: mux,
 	}
