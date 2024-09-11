@@ -168,12 +168,16 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - ./alerts.yml:/etc/prometheus/alerts.yml
       - prometheus_data:/prometheus
+    networks:
+          - auth-network
   grafana:
     image: grafana/grafana-oss:10.0.3
     ports:
       - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
+    networks:
+      - auth-network
 
 
 networks:

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/VadimGossip/concoleChat-auth/internal/logger"
+	"github.com/VadimGossip/concoleChat-auth/internal/metric"
 	"github.com/VadimGossip/platform_common/pkg/closer"
 	"google.golang.org/grpc"
 
@@ -41,6 +42,7 @@ func NewApp(ctx context.Context, name string, appStartedAt time.Time) (*App, err
 
 func (a *App) initDeps(ctx context.Context) error {
 	inits := []func(context.Context) error{
+		metric.Init,
 		a.initServiceProvider,
 		a.initGRPCServer,
 		a.initHTTPServer,
