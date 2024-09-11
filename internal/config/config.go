@@ -18,6 +18,10 @@ type SwaggerConfig interface {
 	Address() string
 }
 
+type PrometheusConfig interface {
+	Address() string
+}
+
 type PgConfig interface {
 	DSN() string
 }

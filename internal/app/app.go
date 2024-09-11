@@ -19,12 +19,13 @@ import (
 )
 
 type App struct {
-	serviceProvider *serviceProvider
-	name            string
-	appStartedAt    time.Time
-	grpcServer      *grpc.Server
-	httpServer      *http.Server
-	swaggerServer   *http.Server
+	serviceProvider  *serviceProvider
+	name             string
+	appStartedAt     time.Time
+	grpcServer       *grpc.Server
+	httpServer       *http.Server
+	swaggerServer    *http.Server
+	prometheusServer *http.Server
 }
 
 func NewApp(ctx context.Context, name string, appStartedAt time.Time) (*App, error) {
@@ -47,6 +48,7 @@ func (a *App) initDeps(ctx context.Context) error {
 		a.initGRPCServer,
 		a.initHTTPServer,
 		a.initSwaggerServer,
+		a.initPrometheusServer,
 	}
 
 	for _, f := range inits {
@@ -97,6 +99,15 @@ func (a *App) Run(ctx context.Context) error {
 		err := a.runSwaggerServer()
 		if err != nil {
 			logger.Fatalf("%s failed to run Swagger server: %v", a.name, err)
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		err := a.runPrometheusServer()
+		if err != nil {
+			logger.Fatalf("%s failed to run Prometheus server: %v", a.name, err)
 		}
 	}()
 

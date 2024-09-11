@@ -46,6 +46,7 @@ type serviceProvider struct {
 	grpcConfig             config.GRPCConfig
 	httpConfig             config.HTTPConfig
 	swaggerConfig          config.SwaggerConfig
+	prometheusConfig       config.PrometheusConfig
 	pgConfig               config.PgConfig
 	redisConfig            config.RedisConfig
 	userKafkaServiceConfig config.UserKafkaServiceConfig
@@ -125,6 +126,19 @@ func (s *serviceProvider) SwaggerConfig() config.SwaggerConfig {
 	}
 
 	return s.swaggerConfig
+}
+
+func (s *serviceProvider) PrometheusConfig() config.PrometheusConfig {
+	if s.prometheusConfig == nil {
+		cfg, err := serverCfg.NewPrometheusConfig()
+		if err != nil {
+			log.Fatalf("failed to get prometheusConfig: %s", err)
+		}
+
+		s.prometheusConfig = cfg
+	}
+
+	return s.prometheusConfig
 }
 
 func (s *serviceProvider) PGConfig() config.PgConfig {
