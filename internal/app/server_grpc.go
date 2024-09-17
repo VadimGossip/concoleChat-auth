@@ -2,6 +2,8 @@ package app
 
 import (
 	"context"
+	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
+	"github.com/opentracing/opentracing-go"
 	"net"
 
 	grpcMiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -20,6 +22,7 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 	a.grpcServer = grpc.NewServer(
 		grpc.Creds(insecure.NewCredentials()),
 		grpc.UnaryInterceptor(grpcMiddleware.ChainUnaryServer(
+			otgrpc.OpenTracingServerInterceptor(opentracing.GlobalTracer()),
 			interceptor.MetricsInterceptor,
 			interceptor.LogInterceptor,
 			interceptor.ValidateInterceptor,

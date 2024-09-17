@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"github.com/VadimGossip/concoleChat-auth/internal/tracing"
 	"log"
 	"os"
 	"time"
@@ -17,10 +18,11 @@ var appName = "Console Chat Auth"
 var logLevel = flag.String("l", "info", "log level")
 
 func main() {
+	ctx := context.Background()
 	flag.Parse()
 	logger.Init(getCore(getAtomicLevel(*logLevel)))
+	tracing.Init(logger.Logger(), appName)
 
-	ctx := context.Background()
 	a, err := app.NewApp(ctx, appName, time.Now())
 	if err != nil {
 		logger.Fatalf("failed to init app%s: %s", appName, err)
