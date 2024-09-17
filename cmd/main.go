@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/VadimGossip/concoleChat-auth/internal/tracing"
 	"log"
 	"os"
 	"time"
 
-	"github.com/VadimGossip/concoleChat-auth/internal/app"
-	"github.com/VadimGossip/concoleChat-auth/internal/logger"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	"github.com/VadimGossip/concoleChat-auth/internal/app"
+	"github.com/VadimGossip/concoleChat-auth/internal/logger"
+	"github.com/VadimGossip/concoleChat-auth/internal/tracing"
 )
 
 var appName = "Console Chat Auth"
