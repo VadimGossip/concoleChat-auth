@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -13,8 +14,9 @@ func (a *App) initPrometheusServer(_ context.Context) error {
 	mux.Handle("/metrics", promhttp.Handler())
 
 	a.prometheusServer = &http.Server{
-		Addr:    a.serviceProvider.PrometheusConfig().Address(),
-		Handler: mux,
+		Addr:              a.serviceProvider.PrometheusConfig().Address(),
+		Handler:           mux,
+		ReadHeaderTimeout: time.Second * 5,
 	}
 
 	return nil
