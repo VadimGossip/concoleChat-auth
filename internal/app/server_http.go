@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/VadimGossip/concoleChat-auth/internal/logger"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/cors"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -43,6 +43,6 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 }
 
 func (a *App) runHTTPServer() error {
-	logrus.Infof("[%s] HTTP server is running on %s", a.name, a.httpServer.Addr)
+	logger.Infof("%s HTTP server is running on %s", a.name, a.httpServer.Addr)
 	return a.httpServer.ListenAndServe()
 }

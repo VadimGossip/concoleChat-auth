@@ -5,8 +5,8 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/VadimGossip/concoleChat-auth/internal/logger"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -40,7 +40,7 @@ func NewSwaggerConfig() (*swaggerConfig, error) {
 		return nil, fmt.Errorf("swaggerConfig set from env err: %s", err)
 	}
 
-	logrus.Infof("swaggerConfig: [%+v]", *cfg)
+	logger.Infof("swaggerConfig: [%+v]", *cfg)
 	return cfg, nil
 }
 

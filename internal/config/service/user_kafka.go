@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/sirupsen/logrus"
+	"github.com/VadimGossip/concoleChat-auth/internal/logger"
 )
 
 const (
@@ -29,7 +29,7 @@ func NewUserKafkaServiceConfig() (*userKafkaServiceConfig, error) {
 		return nil, fmt.Errorf("userKafkaServiceConfig set from env err: %s", err)
 	}
 
-	logrus.Infof("userKafkaServiceConfig: [%+v]", *cfg)
+	logger.Infof("userKafkaServiceConfig: [%+v]", *cfg)
 	return cfg, nil
 }
 

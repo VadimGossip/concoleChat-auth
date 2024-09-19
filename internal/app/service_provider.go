@@ -5,14 +5,6 @@ import (
 	"log"
 
 	"github.com/IBM/sarama"
-	"github.com/VadimGossip/platform_common/pkg/closer"
-	"github.com/VadimGossip/platform_common/pkg/db/postgres"
-	"github.com/VadimGossip/platform_common/pkg/db/postgres/pg"
-	"github.com/VadimGossip/platform_common/pkg/db/postgres/transaction"
-	"github.com/VadimGossip/platform_common/pkg/db/redis"
-	"github.com/VadimGossip/platform_common/pkg/db/redis/rdb"
-	"github.com/sirupsen/logrus"
-
 	"github.com/VadimGossip/concoleChat-auth/internal/api/access"
 	"github.com/VadimGossip/concoleChat-auth/internal/api/auth"
 	"github.com/VadimGossip/concoleChat-auth/internal/api/user"
@@ -24,7 +16,7 @@ import (
 	kafkaCfg "github.com/VadimGossip/concoleChat-auth/internal/config/kafka"
 	serverCfg "github.com/VadimGossip/concoleChat-auth/internal/config/server"
 	serviceCfg "github.com/VadimGossip/concoleChat-auth/internal/config/service"
-	"github.com/VadimGossip/concoleChat-auth/internal/interceptor"
+	"github.com/VadimGossip/concoleChat-auth/internal/logger"
 	"github.com/VadimGossip/concoleChat-auth/internal/repository"
 	accessRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/access"
 	auditRepo "github.com/VadimGossip/concoleChat-auth/internal/repository/audit"
@@ -42,12 +34,19 @@ import (
 	tokenService "github.com/VadimGossip/concoleChat-auth/internal/service/token"
 	userService "github.com/VadimGossip/concoleChat-auth/internal/service/user"
 	userCacheService "github.com/VadimGossip/concoleChat-auth/internal/service/usercache"
+	"github.com/VadimGossip/platform_common/pkg/closer"
+	"github.com/VadimGossip/platform_common/pkg/db/postgres"
+	"github.com/VadimGossip/platform_common/pkg/db/postgres/pg"
+	"github.com/VadimGossip/platform_common/pkg/db/postgres/transaction"
+	"github.com/VadimGossip/platform_common/pkg/db/redis"
+	"github.com/VadimGossip/platform_common/pkg/db/redis/rdb"
 )
 
 type serviceProvider struct {
 	grpcConfig             config.GRPCConfig
 	httpConfig             config.HTTPConfig
 	swaggerConfig          config.SwaggerConfig
+	prometheusConfig       config.PrometheusConfig
 	pgConfig               config.PgConfig
 	redisConfig            config.RedisConfig
 	userKafkaServiceConfig config.UserKafkaServiceConfig
@@ -80,8 +79,6 @@ type serviceProvider struct {
 	tokenService        service.TokenService
 	accessService       service.AccessService
 	authService         service.AuthService
-
-	grpcInterceptor interceptor.GRPCInterceptor
 
 	accessImpl *access.Implementation
 	authImpl   *auth.Implementation
@@ -129,6 +126,19 @@ func (s *serviceProvider) SwaggerConfig() config.SwaggerConfig {
 	}
 
 	return s.swaggerConfig
+}
+
+func (s *serviceProvider) PrometheusConfig() config.PrometheusConfig {
+	if s.prometheusConfig == nil {
+		cfg, err := serverCfg.NewPrometheusConfig()
+		if err != nil {
+			log.Fatalf("failed to get prometheusConfig: %s", err)
+		}
+
+		s.prometheusConfig = cfg
+	}
+
+	return s.prometheusConfig
 }
 
 func (s *serviceProvider) PGConfig() config.PgConfig {
@@ -226,7 +236,7 @@ func (s *serviceProvider) PgDbClient(ctx context.Context) postgres.Client {
 	if s.pgDbClient == nil {
 		cl, err := pg.New(ctx, s.PGConfig().DSN())
 		if err != nil {
-			logrus.Fatalf("failed to create db client: %s", err)
+			logger.Fatalf("failed to create db client: %s", err)
 		}
 
 		if err = cl.DB().Ping(ctx); err != nil {
@@ -429,14 +439,6 @@ func (s *serviceProvider) AuthService(ctx context.Context) service.AuthService {
 	}
 
 	return s.authService
-}
-
-func (s *serviceProvider) GRPCInterceptor() interceptor.GRPCInterceptor {
-	if s.grpcInterceptor == nil {
-		s.grpcInterceptor = interceptor.NewInterceptor()
-	}
-
-	return s.grpcInterceptor
 }
 
 func (s *serviceProvider) AccessImpl(ctx context.Context) *access.Implementation {

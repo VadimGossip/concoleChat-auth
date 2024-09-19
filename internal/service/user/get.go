@@ -4,15 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/sirupsen/logrus"
-
+	"github.com/VadimGossip/concoleChat-auth/internal/logger"
 	"github.com/VadimGossip/concoleChat-auth/internal/model"
 )
 
 func (s *service) Get(ctx context.Context, ID int64) (*model.User, error) {
 	user, err := s.userCacheService.Get(ctx, ID)
 	if err != nil {
-		logrus.Infof("User cache service err %s on get user id = %d", err, ID)
+		logger.Infof("User cache service err %s on get user id = %d", err, ID)
 	}
 	if user != nil {
 		return user, nil
@@ -39,7 +38,7 @@ func (s *service) Get(ctx context.Context, ID int64) (*model.User, error) {
 	}
 
 	if err = s.userCacheService.Set(ctx, user); err != nil {
-		logrus.Infof("User cache service err %s on set user = %+v", err, user)
+		logger.Infof("User cache service err %s on set user = %+v", err, user)
 	}
 
 	return user, nil

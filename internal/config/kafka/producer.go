@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/IBM/sarama"
-	"github.com/sirupsen/logrus"
+	"github.com/VadimGossip/concoleChat-auth/internal/logger"
 )
 
 const (
@@ -34,7 +34,7 @@ func NewKafkaProducerConfig() (*kafkaProducerConfig, error) {
 		return nil, fmt.Errorf("kafkaProducerConfig set from env err: %s", err)
 	}
 
-	logrus.Infof("kafkaProducerConfig: [%+v]", *cfg)
+	logger.Infof("kafkaProducerConfig: [%+v]", *cfg)
 	return cfg, nil
 }
 
